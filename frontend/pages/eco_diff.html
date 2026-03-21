@@ -1,62 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>PLM — ECO Changes</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../static/css/main.css">
+<script src="../static/js/theme.js"></script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
-<body>
-<header class="topbar">
-  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
-  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
-</header>
-<main style="max-width:900px;margin:80px auto;padding:28px">
-  <div class="page-header">
-    <div><h1 class="page-title" id="eco-title">ECO Diff View</h1><p class="page-subtitle">Proposed field-level changes</p></div>
-    <button class="btn btn-ghost" onclick="window.close()">✕ Close</button>
+<body class="bg-body-tertiary">
+<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+  <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+      PLM System
+    </a>
+    <div class="ms-auto">
+      <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle mt-1" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
+    </div>
   </div>
-  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="err-msg"></span></div>
-  <div class="table-wrap" id="diff-wrap">
-    <div class="loading"><span class="spinner"></span> Loading…</div>
+</nav>
+
+<main class="container my-5" style="max-width: 900px;">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1" id="eco-title">ECO Diff View</h1>
+      <p class="text-secondary small mb-0">Proposed field-level changes</p>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" onclick="window.close()">
+      ✕ Close
+    </button>
   </div>
-  <!-- Record change button for engineering -->
-  <div id="add-change-section" style="margin-top:24px;display:none">
-    <h3 style="margin-bottom:12px;font-size:15px;font-weight:600">➕ Record a Proposed Change</h3>
-    <div class="card card-sm" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Entity</label>
-        <select class="form-control" id="new-entity"><option value="product">Product</option><option value="bom">BOM</option></select>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Field Name</label>
-        <input class="form-control" id="new-field" placeholder="e.g. sales_price">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Old Value</label>
-        <input class="form-control" id="new-old-val" placeholder="Current value">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">New Value</label>
-        <input class="form-control" id="new-new-val" placeholder="Proposed value">
+
+  <div id="alert-error" class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle"><span class="fs-5">❌</span> <span id="err-msg"></span></div>
+
+  <div class="card bg-body border-0 shadow-sm overflow-hidden mb-5">
+    <div class="table-responsive" id="diff-wrap">
+      <div class="p-5 text-center">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
       </div>
     </div>
-    <button class="btn btn-primary btn-sm" id="btn-add-change" style="margin-top:10px">+ Record Change</button>
+  </div>
+
+  <!-- Record change button for engineering -->
+  <div id="add-change-section" class="card bg-body border-0 shadow-sm p-4 mt-5" style="display:none">
+    <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2">➕ Record a Proposed Change</h3>
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label text-secondary small text-uppercase">Entity</label>
+        <select class="form-select bg-body-tertiary border-0" id="new-entity"><option value="product">Product</option><option value="bom">BOM</option></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label text-secondary small text-uppercase">Field Name</label>
+        <input class="form-control bg-body-tertiary border-0" id="new-field" placeholder="e.g. sales_price">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label text-secondary small text-uppercase">Old Value</label>
+        <input class="form-control bg-body-tertiary border-0" id="new-old-val" placeholder="Current value">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label text-secondary small text-uppercase">New Value</label>
+        <input class="form-control bg-body-tertiary border-0" id="new-new-val" placeholder="Proposed value">
+      </div>
+      <div class="col-12 mt-3 text-end">
+        <button class="btn btn-primary btn-sm shadow-sm hover-elevate px-4" id="btn-add-change">+ Record Change</button>
+      </div>
+    </div>
   </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
 import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 const role  = getCurrentRole();
 const ecoId = new URLSearchParams(location.search).get('id');
-if (!ecoId) { document.getElementById('err-msg').textContent = 'No ECO ID specified.'; document.getElementById('alert-error').style.display='flex'; }
+if (!ecoId) { document.getElementById('err-msg').textContent = 'No ECO ID specified.'; document.getElementById('alert-error').classList.remove('d-none'); document.getElementById('alert-error').classList.add('d-flex'); }
 
 function isNumeric(v) { return !isNaN(parseFloat(v)) && isFinite(v); }
-function diffClass(fieldName, oldV, newV) {
+function diffClassRow(fieldName, oldV, newV) {
+  if (oldV === newV) return '';
   if (isNumeric(oldV) && isNumeric(newV)) {
-    return parseFloat(newV) > parseFloat(oldV) ? 'diff-added' : parseFloat(newV) < parseFloat(oldV) ? 'diff-removed' : 'diff-unchanged';
+    return parseFloat(newV) > parseFloat(oldV) ? 'table-success' : 'table-danger';
   }
-  return oldV !== newV ? 'diff-added' : 'diff-unchanged';
+  return 'table-success';
 }
 
 async function loadDiff() {
@@ -65,23 +96,28 @@ async function loadDiff() {
     document.getElementById('eco-title').textContent = eco.title;
 
     if (!diff.changes.length) {
-      document.getElementById('diff-wrap').innerHTML = '<div class="empty-state"><div class="empty-state__icon">✨</div><div class="empty-state__text">No proposed changes recorded yet.</div></div>';
+      document.getElementById('diff-wrap').innerHTML = '<div class="empty-state p-5 text-center"><div class="display-3 mb-3 opacity-50">✨</div><h5>No proposed changes recorded yet.</h5></div>';
     } else {
-      document.getElementById('diff-wrap').innerHTML = `<table class="diff-table">
-        <thead><tr><th>Entity</th><th>Field</th><th class="diff-removed">Old Value</th><th class="diff-added">New Value</th></tr></thead>
+      document.getElementById('diff-wrap').innerHTML = `<table class="table table-hover align-middle mb-0">
+        <thead class="table-light border-bottom"><tr><th class="ps-4">Entity</th><th>Field</th><th>Old Value</th><th class="pe-4">New Value</th></tr></thead>
         <tbody>${diff.changes.map(c=>{
-          const cls = diffClass(c.field_name, c.old_value, c.new_value);
-          return `<tr class="${cls}"><td>${c.entity_type}</td><td><code>${c.field_name}</code></td><td class="diff-removed">${c.old_value??'—'}</td><td class="diff-added">${c.new_value??'—'}</td></tr>`;
+          const trCls = diffClassRow(c.field_name, c.old_value, c.new_value);
+          return `<tr class="${trCls}">
+            <td class="ps-4 fw-medium">${c.entity_type}</td>
+            <td><code class="bg-body-secondary px-2 py-1 rounded text-body">${c.field_name}</code></td>
+            <td class="text-danger text-decoration-line-through opacity-75">${c.old_value??'—'}</td>
+            <td class="pe-4 fw-bold text-success">${c.new_value??'—'}</td>
+          </tr>`;
         }).join('')}</tbody></table>`;
     }
 
-    // Show add-change form for active ECOs + engineering/admin
     if (eco.status === 'active' && (role==='engineering'||role==='admin')) {
       document.getElementById('add-change-section').style.display = 'block';
     }
   } catch(e) {
     document.getElementById('err-msg').textContent = e.message;
-    document.getElementById('alert-error').style.display = 'flex';
+    document.getElementById('alert-error').classList.remove('d-none');
+    document.getElementById('alert-error').classList.add('d-flex');
     document.getElementById('diff-wrap').innerHTML = '';
   }
 }

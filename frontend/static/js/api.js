@@ -16,7 +16,7 @@ async function refreshAccessToken() {
   });
   if (!res.ok) {
     localStorage.clear();
-    window.location.href = '/frontend/pages/login.html';
+    window.location.href = 'login.html';
     throw new Error('Session expired. Please log in again.');
   }
   const data = await res.json();

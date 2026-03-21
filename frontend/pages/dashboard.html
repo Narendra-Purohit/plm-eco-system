@@ -1,64 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>PLM — Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../static/css/main.css">
+<script src="../static/js/theme.js"></script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
-<body>
-<!-- Top Bar -->
-<header class="topbar">
-  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
-  <div class="topbar__right">
-    <span id="role-badge" class="badge badge-info"></span>
-    <div class="topbar__user" id="user-icon" title="Logout">👤</div>
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+  <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+      PLM System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topNav">
+      <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <span id="role-badge" class="badge bg-info text-dark rounded-pill px-3 py-2 shadow-sm"></span>
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
+        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="Sign out">
+          👤
+        </button>
+      </div>
+    </div>
   </div>
-</header>
-<!-- Sidebar -->
-<nav class="sidebar">
-  <div class="sidebar__section">Main Menu</div>
-  <a href="dashboard.html" class="sidebar__link active"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
-  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
-  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
-  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
-  <div class="sidebar__section">Insights</div>
-  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
-  <a href="settings.html" class="sidebar__link" id="settings-link" style="display:none"><span class="sidebar__link-icon">⚙️</span> Settings</a>
 </nav>
-<!-- Main Content -->
-<main class="main">
-  <div class="page-header">
-    <div>
-      <h1 class="page-title" id="greeting">Welcome</h1>
-      <p class="page-subtitle">Your PLM engineering control centre</p>
-    </div>
-  </div>
-  <!-- Stats -->
-  <div class="stat-grid" id="stat-grid">
-    <div class="stat-card"><div class="stat-card__icon">📦</div><div class="stat-card__label">Active Products</div><div class="stat-card__value" id="stat-products">—</div></div>
-    <div class="stat-card"><div class="stat-card__icon">🔧</div><div class="stat-card__label">Active BOMs</div><div class="stat-card__value" id="stat-boms">—</div></div>
-    <div class="stat-card"><div class="stat-card__icon">📋</div><div class="stat-card__label">Open ECOs</div><div class="stat-card__value" id="stat-ecos">—</div></div>
-    <div class="stat-card"><div class="stat-card__icon">✅</div><div class="stat-card__label">Applied ECOs</div><div class="stat-card__value" id="stat-applied">—</div></div>
-  </div>
-  <!-- Recent ECOs -->
-  <div class="table-wrap">
-    <div style="padding:16px 20px; border-bottom:1px solid var(--border); font-weight:600;">Recent ECOs</div>
-    <div id="recent-ecos-body">
-      <div class="loading"><span class="spinner"></span> Loading…</div>
-    </div>
-  </div>
-</main>
 
+<div class="container-fluid flex-grow-1 d-flex p-0" style="overflow-x: hidden;">
+  <!-- Sidebar -->
+  <div class="sidebar border-end p-3 d-none d-lg-block bg-body">
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-2">Main Menu</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="dashboard.html" class="nav-link active d-flex align-items-center gap-2"><span class="fs-5">🏠</span> Dashboard</a>
+      <a href="products.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📦</span> Products</a>
+      <a href="bom.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🔧</span> Bill of Materials</a>
+      <a href="ecos.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📋</span> ECOs</a>
+    </div>
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-4">Insights</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="reports.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📊</span> Reports</a>
+      <a href="settings.html" class="nav-link d-flex align-items-center gap-2" id="settings-link" style="display:none !important;"><span class="fs-5">⚙️</span> Settings</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content flex-grow-1 p-4 p-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+      <div>
+        <h1 class="h2 fw-bold mb-1" id="greeting">Welcome</h1>
+        <p class="text-secondary mb-0">Your PLM engineering control centre</p>
+      </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="row g-4 mb-5" id="stat-grid">
+      <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #155EEF !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(21,94,239,0.1); color:#155EEF;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+              </div>
+              <span class="badge" style="background:rgba(21,94,239,0.1); color:#155EEF; border:none !important;">PRODUCTS</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-products"><span class="spinner-border spinner-border-sm text-primary" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">Active in system</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #0891B2 !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(8,145,178,0.1); color:#0891B2;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"></path></svg>
+              </div>
+              <span class="badge" style="background:rgba(8,145,178,0.1); color:#0891B2; border:none !important;">BOMS</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-boms"><span class="spinner-border spinner-border-sm text-primary" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">Active assemblies</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #D97706 !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(217,119,6,0.1); color:#D97706;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line></svg>
+              </div>
+              <span class="badge" style="background:rgba(217,119,6,0.1); color:#D97706; border:none !important;">OPEN ECOs</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-ecos"><span class="spinner-border spinner-border-sm text-warning" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">Awaiting action</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #059669 !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(5,150,105,0.1); color:#059669;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <span class="badge" style="background:rgba(5,150,105,0.1); color:#059669; border:none !important;">APPLIED</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-applied"><span class="spinner-border spinner-border-sm text-success" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">ECOs released</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Recent ECOs -->
+    <div class="card bg-body border-0 overflow-hidden text-body mb-4">
+      <div class="card-header bg-transparent border-bottom p-4">
+        <h5 class="mb-0 fw-bold">Recent ECOs</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <div id="recent-ecos-body" class="p-4 text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
-import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+import { api, getCurrentRole, isLoggedIn, getTokenPayload } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
 const role = getCurrentRole() || localStorage.getItem('role');
-const loginId = localStorage.getItem('login_id');
+const payload = getTokenPayload();
 
-document.getElementById('greeting').textContent = `Welcome back, ${loginId}`;
+// Prefer a 'name' field in the token, fallback to login_id or 'User'
+const userName = payload?.name || payload?.first_name || payload?.username || localStorage.getItem('login_id') || 'User';
+const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+
+document.getElementById('greeting').textContent = `Welcome back, ${displayName} 👋`;
 document.getElementById('role-badge').textContent = role?.toUpperCase();
-if (role === 'admin') document.getElementById('settings-link').style.display = 'flex';
+if (role === 'admin') document.getElementById('settings-link').style.setProperty('display', 'flex', 'important');
 
 document.getElementById('user-icon').addEventListener('click', () => {
   if (confirm('Sign out?')) { localStorage.clear(); window.location.href = 'login.html'; }
@@ -82,19 +186,27 @@ async function loadStats() {
     const recent = [...ecos].sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
     const tbody = document.getElementById('recent-ecos-body');
     if (recent.length === 0) {
-      tbody.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No ECOs yet. Create your first ECO!</div></div>';
+      tbody.className = "empty-state p-5";
+      tbody.innerHTML = '<div class="display-3 mb-3 opacity-50">📋</div><h5>No ECOs yet</h5><p>Create your first ECO!</p>';
       return;
     }
     const statusColor = s => s==='applied'?'success':s==='active'?'info':'warning';
-    tbody.innerHTML = `<table class="data-table"><thead><tr>
-      <th>Title</th><th>Type</th><th>Product</th><th>Stage</th><th>Status</th>
-    </tr></thead><tbody>${recent.map(e=>`<tr onclick="location.href='eco_form.html?id=${e.id}'">
-      <td>${e.title}</td><td>${e.eco_type}</td><td>${e.product_name||'—'}</td>
-      <td><span class="pill pill-white">${e.stage_name||'—'}</span></td>
-      <td><span class="badge badge-${statusColor(e.status)}">${e.status}</span></td>
-    </tr>`).join('')}</tbody></table>`;
+    
+    tbody.className = "";
+    tbody.innerHTML = `<table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr>
+        <th class="ps-4">Title</th><th>Type</th><th>Product</th><th>Stage</th><th class="pe-4">Status</th>
+      </tr></thead>
+      <tbody>${recent.map(e=>`<tr class="data-table-row" onclick="location.href='eco_form.html?id=${e.id}'">
+        <td class="ps-4 fw-medium">${e.title}</td>
+        <td><span class="text-body-secondary">${e.eco_type}</span></td>
+        <td>${e.product_name||'—'}</td>
+        <td><span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3">${e.stage_name||'—'}</span></td>
+        <td class="pe-4"><span class="badge bg-${statusColor(e.status)}-subtle text-${statusColor(e.status)} border border-${statusColor(e.status)}-subtle rounded-pill px-3 py-2">${e.status}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
   } catch (e) {
-    document.getElementById('recent-ecos-body').innerHTML = `<div class="alert alert-error" style="margin:16px">${e.message}</div>`;
+    document.getElementById('recent-ecos-body').innerHTML = `<div class="alert alert-danger m-4 d-flex align-items-center gap-2"><span class="fs-4">⚠️</span> <div>${e.message}</div></div>`;
   }
 }
 

@@ -1,90 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>PLM — Settings</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../static/css/main.css">
+<script src="../static/js/theme.js"></script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
-<body>
-<header class="topbar">
-  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
-  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
-</header>
-<nav class="sidebar">
-  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
-  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
-  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
-  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
-  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
-  <a href="settings.html" class="sidebar__link active"><span class="sidebar__link-icon">⚙️</span> Settings</a>
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+  <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+      PLM System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topNav">
+      <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <span id="role-badge" class="badge bg-info text-dark rounded-pill px-3 py-2 shadow-sm"></span>
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
+        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="Sign out" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">
+          👤
+        </button>
+      </div>
+    </div>
+  </div>
 </nav>
-<main class="main">
-  <div class="page-header">
-    <div><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">ECO Stages and Approval Rules (Admin only)</p></div>
-  </div>
-  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="err-msg"></span></div>
-  <div id="alert-success" class="alert alert-success" style="display:none"><span>✅</span> <span id="ok-msg"></span></div>
 
-  <!-- ECO Stages -->
-  <div class="card" style="margin-bottom:24px">
-    <div class="flex justify-between items-center" style="margin-bottom:16px">
-      <h2 style="font-size:16px;font-weight:700">📊 ECO Stages</h2>
-      <button class="btn btn-primary btn-sm" id="btn-add-stage">+ Add Stage</button>
+<div class="container-fluid flex-grow-1 d-flex p-0" style="overflow-x: hidden;">
+  <!-- Sidebar -->
+  <div class="sidebar border-end p-3 d-none d-lg-block bg-body">
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-2">Main Menu</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="dashboard.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🏠</span> Dashboard</a>
+      <a href="products.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📦</span> Products</a>
+      <a href="bom.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🔧</span> Bill of Materials</a>
+      <a href="ecos.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📋</span> ECOs</a>
     </div>
-    <div id="stages-body"><div class="loading"><span class="spinner"></span></div></div>
-  </div>
-
-  <!-- Approval Rules -->
-  <div class="card">
-    <div class="flex justify-between items-center" style="margin-bottom:16px">
-      <h2 style="font-size:16px;font-weight:700">👤 Approval Rules</h2>
-      <button class="btn btn-primary btn-sm" id="btn-add-approval">+ Add Rule</button>
-    </div>
-    <div id="approvals-body"><div class="loading"><span class="spinner"></span></div></div>
-  </div>
-
-  <!-- Add Stage Modal area (inline) -->
-  <div id="add-stage-form" class="card card-sm" style="margin-top:16px;display:none">
-    <h3 style="margin-bottom:12px;font-size:14px;font-weight:600">New Stage</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
-      <div class="form-group" style="margin:0"><label class="form-label">Name</label><input class="form-control" id="new-stage-name"></div>
-      <div class="form-group" style="margin:0"><label class="form-label">Sequence</label><input class="form-control" id="new-stage-seq" type="number"></div>
-      <div class="form-group" style="margin:0"><label class="form-label">Is New?</label><select class="form-control" id="new-stage-new"><option value="false">No</option><option value="true">Yes</option></select></div>
-      <div class="form-group" style="margin:0"><label class="form-label">Is Done?</label><select class="form-control" id="new-stage-done"><option value="false">No</option><option value="true">Yes</option></select></div>
-      <button class="btn btn-success btn-sm" id="btn-save-stage">Save</button>
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-4">Insights</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="reports.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📊</span> Reports</a>
+      <a href="settings.html" class="nav-link active d-flex align-items-center gap-2" id="settings-link"><span class="fs-5">⚙️</span> Settings</a>
     </div>
   </div>
 
-  <!-- Add Approval Rule inline -->
-  <div id="add-approval-form" class="card card-sm" style="margin-top:16px;display:none">
-    <h3 style="margin-bottom:12px;font-size:14px;font-weight:600">New Approval Rule</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end">
-      <div class="form-group" style="margin:0"><label class="form-label">Stage</label><select class="form-control" id="new-rule-stage"><option value="">Select…</option></select></div>
-      <div class="form-group" style="margin:0"><label class="form-label">User</label><select class="form-control" id="new-rule-user"><option value="">Select…</option></select></div>
-      <div class="form-group" style="margin:0"><label class="form-label">Category</label><select class="form-control" id="new-rule-cat"><option value="required">Required</option><option value="optional">Optional</option></select></div>
-      <button class="btn btn-success btn-sm" id="btn-save-approval">Save</button>
+  <main class="main-content flex-grow-1 p-4 p-md-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h1 class="h2 fw-bold mb-1">⚙️ Settings</h1>
+        <p class="text-secondary mb-0">ECO Stages and Approval Rules (Admin only)</p>
+      </div>
     </div>
-  </div>
-</main>
 
+    <div id="alert-error" class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle"><span class="fs-5">❌</span> <span id="err-msg"></span></div>
+    <div id="alert-success" class="alert alert-success d-none align-items-center gap-2 mb-4 shadow-sm border-success-subtle"><span class="fs-5">✅</span> <span id="ok-msg"></span></div>
+
+    <!-- ECO Stages -->
+    <div class="card bg-body border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+        <h2 class="h5 fw-bold mb-0 d-flex align-items-center gap-2"><span class="fs-5">📊</span> ECO Stages</h2>
+        <button class="btn btn-primary btn-sm shadow-sm d-flex align-items-center gap-1" id="btn-add-stage">
+          <span class="fs-6">+</span> Add Stage
+        </button>
+      </div>
+      
+      <!-- Add Stage Inline Form -->
+      <div id="add-stage-form" class="bg-body-tertiary border-top border-bottom p-4" style="display:none">
+        <h3 class="h6 fw-bold mb-3">New Stage</h3>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label text-secondary small text-uppercase fw-medium">Name</label>
+            <input class="form-control border-0 shadow-sm" id="new-stage-name">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label text-secondary small text-uppercase fw-medium">Sequence</label>
+            <input class="form-control border-0 shadow-sm" id="new-stage-seq" type="number">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label text-secondary small text-uppercase fw-medium">Is New?</label>
+            <select class="form-select border-0 shadow-sm" id="new-stage-new"><option value="false">No</option><option value="true">Yes</option></select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label text-secondary small text-uppercase fw-medium">Is Done?</label>
+            <select class="form-select border-0 shadow-sm" id="new-stage-done"><option value="false">No</option><option value="true">Yes</option></select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-success shadow-sm w-100" id="btn-save-stage">Save Stage</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive" id="stages-body">
+          <div class="p-5 text-center"><div class="spinner-border text-primary" role="status"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approval Rules -->
+    <div class="card bg-body border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+        <h2 class="h5 fw-bold mb-0 d-flex align-items-center gap-2"><span class="fs-5">👤</span> Approval Rules</h2>
+        <button class="btn btn-primary btn-sm shadow-sm d-flex align-items-center gap-1" id="btn-add-approval">
+          <span class="fs-6">+</span> Add Rule
+        </button>
+      </div>
+
+      <!-- Add Approval Rule Inline Form -->
+      <div id="add-approval-form" class="bg-body-tertiary border-top border-bottom p-4" style="display:none">
+        <h3 class="h6 fw-bold mb-3">New Approval Rule</h3>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label text-secondary small text-uppercase fw-medium">Stage</label>
+            <select class="form-select border-0 shadow-sm" id="new-rule-stage"><option value="">Select…</option></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-secondary small text-uppercase fw-medium">User</label>
+            <select class="form-select border-0 shadow-sm" id="new-rule-user"><option value="">Select…</option></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-secondary small text-uppercase fw-medium">Category</label>
+            <select class="form-select border-0 shadow-sm" id="new-rule-cat"><option value="required">Required</option><option value="optional">Optional</option></select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-success shadow-sm w-100" id="btn-save-approval">Save Rule</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive" id="approvals-body">
+          <div class="p-5 text-center"><div class="spinner-border text-primary" role="status"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
 import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
-if (getCurrentRole() !== 'admin') { alert('Admin access required.'); window.location.href = 'dashboard.html'; }
+const role = getCurrentRole();
+document.getElementById('role-badge').textContent = role?.toUpperCase();
+if (role !== 'admin') { alert('Admin access required.'); window.location.href = 'dashboard.html'; }
 
-function showError(msg)   { document.getElementById('err-msg').textContent=msg; document.getElementById('alert-error').style.display='flex'; }
-function showSuccess(msg) { document.getElementById('ok-msg').textContent=msg; document.getElementById('alert-success').style.display='flex'; setTimeout(()=>document.getElementById('alert-success').style.display='none',3000); }
+function showError(msg)   { document.getElementById('err-msg').textContent=msg; document.getElementById('alert-error').classList.remove('d-none'); document.getElementById('alert-error').classList.add('d-flex'); }
+function showSuccess(msg) { document.getElementById('ok-msg').textContent=msg; document.getElementById('alert-success').classList.remove('d-none'); document.getElementById('alert-success').classList.add('d-flex'); setTimeout(()=>{document.getElementById('alert-success').classList.add('d-none');document.getElementById('alert-success').classList.remove('d-flex');},3000); }
 
 async function loadStages() {
   const stages = await api.settings.stages.list();
   const tbody = document.getElementById('stages-body');
-  tbody.innerHTML = `<table class="data-table"><thead><tr><th>Sequence</th><th>Name</th><th>Flags</th><th>Actions</th></tr></thead>
+  tbody.innerHTML = `<table class="table table-hover align-middle mb-0"><thead class="table-light border-bottom"><tr><th class="ps-4">Sequence</th><th>Name</th><th>Flags</th><th class="pe-4 text-end">Actions</th></tr></thead>
     <tbody>${stages.map(s=>`<tr>
-      <td>${s.sequence}</td><td><b>${s.name}</b></td>
-      <td>${s.is_default_new?'<span class="badge badge-info">New</span>':''}${s.is_default_done?'<span class="badge badge-success">Done</span>':''}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteStage(${s.id})" ${s.is_default_new||s.is_default_done?'disabled':''>🗑️ Delete</button></td>
+      <td class="ps-4 fw-medium text-secondary">${s.sequence}</td>
+      <td class="fw-bold">${s.name}</td>
+      <td>${s.is_default_new?'<span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2 me-1">New</span>':''}${s.is_default_done?'<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2">Done</span>':''}</td>
+      <td class="pe-4 text-end"><button class="btn btn-outline-danger btn-sm rounded px-3" onclick="deleteStage(${s.id})" ${s.is_default_new||s.is_default_done?'disabled':''}>🗑️ Delete</button></td>
     </tr>`).join('')}</tbody></table>`;
-  // Populate stage dropdown for approval rules
   document.getElementById('new-rule-stage').innerHTML =
     '<option value="">Select…</option>' + stages.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
 }
@@ -93,14 +174,15 @@ async function loadApprovals() {
   const rules = await api.settings.approvals.list();
   const tbody = document.getElementById('approvals-body');
   if (!rules.length) {
-    tbody.innerHTML = '<div class="empty-state"><div class="empty-state__icon">👤</div><div class="empty-state__text">No approval rules configured.</div></div>';
+    tbody.innerHTML = '<div class="empty-state p-5 text-center"><div class="display-3 mb-3 opacity-50">👤</div><h5>No approval rules configured.</h5></div>';
     return;
   }
-  tbody.innerHTML = `<table class="data-table"><thead><tr><th>Stage</th><th>User</th><th>Category</th><th>Actions</th></tr></thead>
+  tbody.innerHTML = `<table class="table table-hover align-middle mb-0"><thead class="table-light border-bottom"><tr><th class="ps-4">Stage</th><th>User</th><th>Category</th><th class="pe-4 text-end">Actions</th></tr></thead>
     <tbody>${rules.map(r=>`<tr>
-      <td>${r.stage_name}</td><td>${r.user_name}</td>
-      <td><span class="badge ${r.category==='required'?'badge-info':'badge-warning'}">${r.category}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteApproval(${r.id})">🗑️ Delete</button></td>
+      <td class="ps-4 fw-medium">${r.stage_name}</td>
+      <td><div class="d-flex align-items-center gap-2"><div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:12px;">👤</div> ${r.user_name}</div></td>
+      <td><span class="badge bg-${r.category==='required'?'primary':'warning'}-subtle text-${r.category==='required'?'primary':'warning'} border border-${r.category==='required'?'primary':'warning'}-subtle rounded-pill px-3 py-1 text-capitalize">${r.category}</span></td>
+      <td class="pe-4 text-end"><button class="btn btn-outline-danger btn-sm rounded px-3" onclick="deleteApproval(${r.id})">🗑️ Delete</button></td>
     </tr>`).join('')}</tbody></table>`;
 }
 
@@ -127,16 +209,19 @@ document.getElementById('btn-save-stage').addEventListener('click', async () => 
   const isNew  = document.getElementById('new-stage-new').value === 'true';
   const isDone = document.getElementById('new-stage-done').value === 'true';
   if (!name || !seq) { showError('Name and sequence are required.'); return; }
+  
+  const btn = document.getElementById('btn-save-stage');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
   try {
     await api.settings.stages.create({ name, sequence: seq, is_default_new: isNew, is_default_done: isDone });
     await loadStages(); document.getElementById('add-stage-form').style.display = 'none'; showSuccess('Stage created.');
   } catch(e) { showError(e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Save Stage'; }
 });
 
 document.getElementById('btn-add-approval').addEventListener('click', async () => {
   const f = document.getElementById('add-approval-form');
   f.style.display = f.style.display === 'none' ? 'block' : 'none';
-  // Load users into dropdown
   const users = await api.auth.users();
   document.getElementById('new-rule-user').innerHTML =
     '<option value="">Select…</option>' + users.map(u=>`<option value="${u.id}">${u.login_id} (${u.role})</option>`).join('');
@@ -147,10 +232,14 @@ document.getElementById('btn-save-approval').addEventListener('click', async () 
   const user     = +document.getElementById('new-rule-user').value;
   const category = document.getElementById('new-rule-cat').value;
   if (!stage || !user) { showError('Stage and user are required.'); return; }
+  
+  const btn = document.getElementById('btn-save-approval');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
   try {
     await api.settings.approvals.create({ stage, user, category });
     await loadApprovals(); document.getElementById('add-approval-form').style.display = 'none'; showSuccess('Approval rule created.');
   } catch(e) { showError(e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Save Rule'; }
 });
 
 loadStages().catch(e => showError(e.message));

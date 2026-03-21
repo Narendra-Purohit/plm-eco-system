@@ -1,91 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>PLM — Product</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../static/css/main.css">
+<script src="../static/js/theme.js"></script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
-<body>
-<header class="topbar">
-  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
-  <div class="topbar__right">
-    <div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div>
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+  <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+      PLM System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topNav">
+      <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
+        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="Sign out" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">
+          👤
+        </button>
+      </div>
+    </div>
   </div>
-</header>
-<nav class="sidebar">
-  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
-  <a href="products.html" class="sidebar__link active"><span class="sidebar__link-icon">📦</span> Products</a>
-  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
-  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
-  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
 </nav>
-<main class="main">
-  <div class="page-header">
-    <div>
-      <h1 class="page-title" id="page-title">New Product</h1>
-      <p class="page-subtitle" id="page-subtitle">Fill in the product details below</p>
+
+<div class="container-fluid flex-grow-1 d-flex p-0" style="overflow-x: hidden;">
+  <!-- Sidebar -->
+  <div class="sidebar border-end p-3 d-none d-lg-block bg-body">
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-2">Main Menu</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="dashboard.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🏠</span> Dashboard</a>
+      <a href="products.html" class="nav-link active d-flex align-items-center gap-2"><span class="fs-5">📦</span> Products</a>
+      <a href="bom.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🔧</span> Bill of Materials</a>
+      <a href="ecos.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📋</span> ECOs</a>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="location.href='products.html'">← Back</button>
-      <button class="btn btn-primary" id="btn-save">Save Product</button>
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-4">Insights</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="reports.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📊</span> Reports</a>
+      <a href="settings.html" class="nav-link d-flex align-items-center gap-2" id="settings-link" style="display:none !important;"><span class="fs-5">⚙️</span> Settings</a>
     </div>
   </div>
 
-  <div id="alert-error" class="alert alert-error" style="display:none">
-    <span>❌</span> <span id="alert-msg"></span>
-  </div>
-
-  <div class="card">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="form-label">Product Name <span class="required">*</span></label>
-        <input class="form-control" id="field-name" maxlength="255" placeholder="Enter product name">
+  <main class="main-content flex-grow-1 p-4 p-md-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h1 class="h2 fw-bold mb-1" id="page-title">New Product</h1>
+        <p class="text-secondary mb-0" id="page-subtitle">Fill in the product details below</p>
       </div>
-      <div class="form-group">
-        <label class="form-label">Sales Price <span class="required">*</span></label>
-        <input class="form-control" id="field-sales-price" type="number" step="0.01" min="0" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Cost Price <span class="required">*</span></label>
-        <input class="form-control" id="field-cost-price" type="number" step="0.01" min="0" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Version</label>
-        <input class="form-control" id="field-version" readonly placeholder="Auto-assigned">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <input class="form-control" id="field-status" readonly placeholder="Active">
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-secondary" onclick="location.href='products.html'">← Back</button>
+        <button class="btn btn-outline-primary d-none align-items-center gap-2 shadow-sm" id="btn-open-drawer" data-bs-toggle="offcanvas" data-bs-target="#ecoDrawer">📋 ECOs</button>
+        <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm hover-elevate transition-all" id="btn-save">Save Product</button>
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Attachments (PDF, Excel, Images)</label>
-      <input class="form-control" id="field-attachments" type="file" multiple
-             accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.gif" id="btn-save">
+    <div id="alert-error" class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle">
+      <span class="fs-5">❌</span> <span id="alert-msg"></span>
     </div>
 
-    <div id="attachments-list" style="margin-top:8px"></div>
-  </div>
+    <div class="card bg-body border-0 shadow-sm mb-4">
+      <div class="card-body p-4 p-md-5">
+        <div class="row g-4">
+          <div class="col-12">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Product Name <span class="text-danger">*</span></label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-name" maxlength="255" placeholder="Enter product name">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Sales Price <span class="text-danger">*</span></label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-body-tertiary border-0">$</span>
+              <input class="form-control bg-body-tertiary border-0" id="field-sales-price" type="number" step="0.01" min="0" placeholder="0.00">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Cost Price <span class="text-danger">*</span></label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-body-tertiary border-0">$</span>
+              <input class="form-control bg-body-tertiary border-0" id="field-cost-price" type="number" step="0.01" min="0" placeholder="0.00">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Version</label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-version" readonly placeholder="Auto-assigned">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Status</label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-status" readonly placeholder="Active">
+          </div>
+        </div>
 
-  <!-- Version History (shown in view mode) -->
-  <div id="version-history-section" style="margin-top:24px;display:none">
-    <h3 style="margin-bottom:12px;font-size:16px">📜 Version History</h3>
-    <div class="table-wrap" id="version-history-body"></div>
-  </div>
-</main>
+        <hr class="my-5 border-secondary-subtle">
 
+        <div class="mb-3">
+          <label class="form-label fw-medium text-secondary small text-uppercase">Attachments (PDF, Excel, Images)</label>
+          <input class="form-control bg-body-tertiary border-0" id="field-attachments" type="file" multiple accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.gif">
+        </div>
+        <div id="attachments-list" class="mt-3"></div>
+      </div>
+    </div>
+
+    <!-- Version History -->
+    <div id="version-history-section" class="d-none">
+      <h3 class="h5 fw-bold mb-3 mt-5 d-flex align-items-center gap-2 text-secondary"><span class="fs-4">📜</span> Version History</h3>
+      <div class="card bg-body border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive" id="version-history-body"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ECO Drawer Overlay -->
+<div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="ecoDrawer" style="width: 400px; border-left: 1px solid var(--border);">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-bold">Engineering Changes</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-4">
+    <div class="bg-body-tertiary p-3 rounded border mb-4">
+      <h6 class="fw-bold mb-3 fs-6">Draft New ECO</h6>
+      <div id="eco-drawer-alert" class="alert alert-danger d-none py-2 px-3 small"></div>
+      <div class="mb-3">
+        <label class="form-label text-secondary small text-uppercase">ECO Title <span class="text-danger">*</span></label>
+        <input class="form-control border-0 shadow-sm" id="eco-drawer-title" placeholder="E.g. Revise cost margins">
+      </div>
+      <button class="btn btn-primary w-100 fw-bold shadow-sm" id="btn-submit-eco-draft">Draft ECO</button>
+    </div>
+    <h6 class="fw-bold mb-3 fs-6">Active ECOs on this Product</h6>
+    <div id="eco-drawer-list" class="d-flex flex-column gap-2 flex-grow-1">
+      <div class="text-center text-muted small mt-4">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
-import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+import { api, getCurrentRole, isLoggedIn, getCurrentUserId } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
 const role = getCurrentRole();
+if (role === 'admin') document.getElementById('settings-link').style.setProperty('display', 'flex', 'important');
 const params = new URLSearchParams(location.search);
 const productId = params.get('id');
 
 function showError(msg) {
   document.getElementById('alert-msg').textContent = msg;
-  document.getElementById('alert-error').style.display = 'flex';
+  document.getElementById('alert-error').classList.remove('d-none');
+  document.getElementById('alert-error').classList.add('d-flex');
 }
 
 function lockForm() {
@@ -99,7 +169,7 @@ if (productId) {
   document.getElementById('page-title').textContent = 'Product Details';
   document.getElementById('page-subtitle').textContent = 'View-only — changes via ECO only';
   lockForm();
-  document.getElementById('version-history-section').style.display = 'block';
+  document.getElementById('version-history-section').classList.remove('d-none');
 
   (async () => {
     try {
@@ -112,16 +182,35 @@ if (productId) {
 
       if (p.attachments?.length) {
         document.getElementById('attachments-list').innerHTML =
-          '<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Attachments:</div>' +
-          p.attachments.map(a=>`<a href="${a.file_path}" target="_blank" style="display:block;margin-bottom:4px;font-size:13px">📎 ${a.file_name}</a>`).join('');
+          '<div class="text-secondary small fw-medium mb-2 text-uppercase">Attachments:</div>' +
+          p.attachments.map(a=>`<a href="${a.file_path}" target="_blank" class="d-block mb-1 text-decoration-none text-primary">📎 ${a.file_name}</a>`).join('');
       }
 
       // Version history
       const versions = await api.products.versions(productId);
       document.getElementById('version-history-body').innerHTML =
-        `<table class="data-table"><thead><tr><th>Version</th><th>Status</th><th>Sales Price</th><th>Cost Price</th><th>Created</th></tr></thead><tbody>
-        ${versions.map(v=>`<tr><td>v${v.version}</td><td><span class="badge ${v.status==='active'?'badge-success':'badge-danger'}">${v.status}</span></td><td>$${v.sales_price}</td><td>$${v.cost_price}</td><td>${new Date(v.created_at).toLocaleDateString()}</td></tr>`).join('')}
+        `<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-4">Version</th><th>Status</th><th>Sales Price</th><th>Cost Price</th><th class="pe-4">Created</th></tr></thead><tbody>
+        ${versions.map(v=>`<tr><td class="ps-4"><span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3">v${v.version}</span></td><td><span class="badge bg-${v.status==='active'?'success':'danger'}-subtle text-${v.status==='active'?'success':'danger'} border border-${v.status==='active'?'success':'danger'}-subtle rounded-pill px-3 py-2 text-capitalize">${v.status}</span></td><td>$${v.sales_price}</td><td>$${v.cost_price}</td><td class="pe-4">${new Date(v.created_at).toLocaleDateString()}</td></tr>`).join('')}
         </tbody></table>`;
+
+      document.getElementById('btn-open-drawer').classList.remove('d-none');
+      document.getElementById('btn-open-drawer').classList.add('d-flex');
+      
+      const ecos = await api.ecos.list();
+      const myEcos = ecos.filter(e => String(e.product) === String(productId));
+      const listEl = document.getElementById('eco-drawer-list');
+      if (!myEcos.length) {
+        listEl.innerHTML = '<div class="text-center text-muted small mt-4 border border-dashed p-3 rounded border-secondary">No active ECOs found.</div>';
+      } else {
+        listEl.innerHTML = myEcos.map(e => `
+          <a href="eco_form.html?id=${e.id}" class="text-decoration-none text-body p-3 border rounded hover-elevate transition-all d-block bg-body shadow-sm">
+            <div class="fw-bold mb-1">${e.title}</div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <span class="badge bg-secondary-subtle text-secondary border px-2">${e.status}</span>
+              <span class="small text-muted">${new Date(e.created_at).toLocaleDateString()}</span>
+            </div>
+          </a>`).join('');
+      }
     } catch (e) { showError(e.message); }
   })();
 } else {
@@ -136,6 +225,9 @@ document.getElementById('btn-save').addEventListener('click', async () => {
   const name = document.getElementById('field-name').value.trim();
   const salesPrice = document.getElementById('field-sales-price').value;
   const costPrice  = document.getElementById('field-cost-price').value;
+  
+  document.getElementById('alert-error').classList.add('d-none');
+  
   if (!name || !salesPrice || !costPrice) { showError('Please fill all required fields.'); return; }
 
   const formData = new FormData();
@@ -146,7 +238,7 @@ document.getElementById('btn-save').addEventListener('click', async () => {
   for (const f of files) formData.append('attachments', f);
 
   document.getElementById('btn-save').disabled = true;
-  document.getElementById('btn-save').textContent = 'Saving…';
+  document.getElementById('btn-save').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving…';
 
   try {
     const p = await api.products.create(formData);
@@ -155,6 +247,21 @@ document.getElementById('btn-save').addEventListener('click', async () => {
     showError(e.message);
     document.getElementById('btn-save').disabled = false;
     document.getElementById('btn-save').textContent = 'Save Product';
+  }
+});
+
+document.getElementById('btn-submit-eco-draft').addEventListener('click', async () => {
+  const title = document.getElementById('eco-drawer-title').value.trim();
+  const alertEl = document.getElementById('eco-drawer-alert');
+  alertEl.classList.add('d-none');
+  if(!title) { alertEl.classList.remove('d-none'); alertEl.textContent = 'Title required'; return; }
+  try {
+    document.getElementById('btn-submit-eco-draft').disabled = true;
+    const eco = await api.ecos.create({ title, eco_type: 'product', product: +productId, bom: null, user: getCurrentUserId(), version_update: true });
+    window.location.href = `eco_form.html?id=${eco.id}`;
+  } catch(e) {
+    alertEl.classList.remove('d-none'); alertEl.textContent = e.message;
+    document.getElementById('btn-submit-eco-draft').disabled = false;
   }
 });
 </script>
