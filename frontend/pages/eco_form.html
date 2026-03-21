@@ -1,98 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>PLM — ECO Form</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../static/css/main.css">
+<script src="../static/js/theme.js"></script>
 </head>
-<body>
-<header class="topbar">
-  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
-  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
-</header>
-<nav class="sidebar">
-  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
-  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
-  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
-  <a href="ecos.html" class="sidebar__link active"><span class="sidebar__link-icon">📋</span> ECOs</a>
-  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px; background: linear-gradient(135deg, #0d6efd, #6610f2); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ffffff" viewBox="0 0 16 16"><path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923z"/></svg></div>
+      PLM System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topNav">
+      <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
+        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="Sign out" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">
+          👤
+        </button>
+      </div>
+    </div>
+  </div>
 </nav>
-<main class="main">
-  <div class="page-header">
-    <div><h1 class="page-title" id="page-title">New ECO</h1><p class="page-subtitle" id="page-subtitle">Engineering Change Order</p></div>
-    <div style="display:flex;gap:8px" id="action-buttons">
-      <button class="btn btn-ghost" onclick="location.href='ecos.html'">← Back</button>
-      <button class="btn btn-primary" id="btn-save">Save</button>
-      <button class="btn btn-success" id="btn-start" style="display:none">▶ Start ECO</button>
-      <button class="btn btn-secondary" id="btn-validate" style="display:none">⏩ Validate</button>
-      <button class="btn btn-primary" id="btn-approve" style="display:none">✅ Approve</button>
-      <button class="btn btn-danger btn-sm" id="btn-reject" style="display:none">✗ Reject</button>
-      <button class="btn btn-ghost" id="btn-open-product" style="display:none">📦 Open Product</button>
-      <button class="btn btn-ghost" id="btn-open-bom" style="display:none">🔧 Open BOM</button>
-      <button class="btn btn-ghost" id="btn-view-diff" style="display:none">🔍 Changes</button>
+
+<div class="container-fluid flex-grow-1 d-flex p-0" style="overflow-x: hidden;">
+  <!-- Sidebar -->
+  <div class="sidebar border-end p-3 d-none d-lg-block bg-body">
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-2">Main Menu</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="dashboard.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🏠</span> Dashboard</a>
+      <a href="products.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📦</span> Products</a>
+      <a href="bom.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🔧</span> Bill of Materials</a>
+      <a href="ecos.html" class="nav-link active d-flex align-items-center gap-2"><span class="fs-5">📋</span> ECOs</a>
+    </div>
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-4">Insights</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="reports.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📊</span> Reports</a>
+      <a href="settings.html" class="nav-link d-flex align-items-center gap-2" id="settings-link" style="display:none !important;"><span class="fs-5">⚙️</span> Settings</a>
     </div>
   </div>
 
-  <!-- Alert -->
-  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="alert-msg"></span></div>
-  <div id="alert-success" class="alert alert-success" style="display:none"><span>✅</span> <span id="alert-ok-msg"></span></div>
-
-  <!-- Stage pills -->
-  <div class="stage-pills-row" id="stage-pills-row"></div>
-
-  <!-- ECO Header Form -->
-  <div class="card" style="margin-bottom:20px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="form-label">ECO Title <span class="required">*</span></label>
-        <input class="form-control" id="field-title" maxlength="255" placeholder="Describe the change…">
+  <main class="main-content flex-grow-1 p-4 p-md-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h1 class="h2 fw-bold mb-1" id="page-title">New ECO</h1>
+        <p class="text-secondary mb-0" id="page-subtitle">Engineering Change Order</p>
       </div>
-      <div class="form-group">
-        <label class="form-label">ECO Type <span class="required">*</span></label>
-        <select class="form-control" id="field-eco-type">
-          <option value="product">📦 Product</option>
-          <option value="bom">🔧 Bill of Materials</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Responsible User</label>
-        <select class="form-control" id="field-user"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Product <span class="required">*</span></label>
-        <select class="form-control" id="field-product"><option value="">Select product…</option></select>
-      </div>
-      <div class="form-group" id="bom-group" style="display:none">
-        <label class="form-label">BOM <span class="required">*</span></label>
-        <select class="form-control" id="field-bom"><option value="">Select BOM…</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Version Update?</label>
-        <select class="form-control" id="field-version-update">
-          <option value="true">Yes — create new version</option>
-          <option value="false">No — update in place</option>
-        </select>
-      </div>
-      <div class="form-group" id="group-effective-date">
-        <label class="form-label">Effective Date</label>
-        <input class="form-control" id="field-effective-date" readonly placeholder="Set when ECO is applied">
+      <div class="d-flex flex-wrap gap-2" id="action-buttons">
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.href='ecos.html'">← Back</button>
+        <button class="btn btn-primary btn-sm shadow-sm" id="btn-save">Save</button>
+        <button class="btn btn-success btn-sm shadow-sm" id="btn-start" style="display:none">▶ Start ECO</button>
+        <button class="btn btn-secondary btn-sm shadow-sm" id="btn-validate" style="display:none">⏩ Validate</button>
+        <button class="btn btn-primary btn-sm shadow-sm" id="btn-approve" style="display:none">✅ Approve</button>
+        <button class="btn btn-danger btn-sm shadow-sm" id="btn-reject" style="display:none">✗ Reject</button>
+        <button class="btn btn-outline-secondary btn-sm" id="btn-open-product" style="display:none">📦 Open Product</button>
+        <button class="btn btn-outline-secondary btn-sm" id="btn-open-bom" style="display:none">🔧 Open BOM</button>
+        <button class="btn btn-info text-white btn-sm shadow-sm" id="btn-view-diff" style="display:none">🔍 View Changes</button>
       </div>
     </div>
-  </div>
-</main>
 
+    <!-- Alert -->
+    <div id="alert-error" class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle"><span class="fs-5">❌</span> <span id="alert-msg"></span></div>
+    <div id="alert-success" class="alert alert-success d-none align-items-center gap-2 mb-4 shadow-sm border-success-subtle"><span class="fs-5">✅</span> <span id="alert-ok-msg"></span></div>
+
+    <!-- Stage pills -->
+    <div class="d-flex align-items-center flex-wrap gap-1 mb-4" id="stage-pills-row"></div>
+
+    <!-- ECO Header Form -->
+    <div class="card bg-body border-0 shadow-sm mb-4">
+      <div class="card-body p-4 p-md-5">
+        <div class="row g-4">
+          <div class="col-12">
+            <label class="form-label fw-medium text-secondary small text-uppercase">ECO Title <span class="text-danger">*</span></label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-title" maxlength="255" placeholder="Describe the change…">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">ECO Type <span class="text-danger">*</span></label>
+            <select class="form-select form-select-lg bg-body-tertiary border-0" id="field-eco-type">
+              <option value="product">📦 Product</option>
+              <option value="bom">🔧 Bill of Materials</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Responsible User</label>
+            <select class="form-select form-select-lg bg-body-tertiary border-0" id="field-user"></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Product <span class="text-danger">*</span></label>
+            <select class="form-select form-select-lg bg-body-tertiary border-0" id="field-product"><option value="">Select product…</option></select>
+          </div>
+          <div class="col-md-6" id="bom-group" style="display:none">
+            <label class="form-label fw-medium text-secondary small text-uppercase">BOM <span class="text-danger">*</span></label>
+            <select class="form-select form-select-lg bg-body-tertiary border-0" id="field-bom"><option value="">Select BOM…</option></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Version Update?</label>
+            <select class="form-select form-select-lg bg-body-tertiary border-0" id="field-version-update">
+              <option value="true">Yes — create new version</option>
+              <option value="false">No — update in place</option>
+            </select>
+          </div>
+          <div class="col-md-6" id="group-effective-date">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Effective Date</label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0 text-muted" id="field-effective-date" readonly placeholder="Set when ECO is applied">
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
 import { api, getCurrentRole, getCurrentUserId, isLoggedIn } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
 const role   = getCurrentRole();
 const userId = getCurrentUserId();
+if (role === 'admin') document.getElementById('settings-link').style.setProperty('display', 'flex', 'important');
 const ecoId  = new URLSearchParams(location.search).get('id');
 let allStages = [];
 let ecoData   = null;
 
-function showError(msg)   { document.getElementById('alert-msg').textContent=msg; document.getElementById('alert-error').style.display='flex'; document.getElementById('alert-success').style.display='none'; }
-function showSuccess(msg) { document.getElementById('alert-ok-msg').textContent=msg; document.getElementById('alert-success').style.display='flex'; document.getElementById('alert-error').style.display='none'; }
+function showError(msg)   { document.getElementById('alert-msg').textContent=msg; document.getElementById('alert-error').classList.remove('d-none'); document.getElementById('alert-error').classList.add('d-flex'); document.getElementById('alert-success').classList.add('d-none'); document.getElementById('alert-success').classList.remove('d-flex'); }
+function showSuccess(msg) { document.getElementById('alert-ok-msg').textContent=msg; document.getElementById('alert-success').classList.remove('d-none'); document.getElementById('alert-success').classList.add('d-flex'); document.getElementById('alert-error').classList.add('d-none'); document.getElementById('alert-error').classList.remove('d-flex'); }
 
 function lockAllFields() {
   document.querySelectorAll('#field-title,#field-eco-type,#field-user,#field-product,#field-bom,#field-version-update').forEach(el => el.disabled = true);
@@ -105,18 +142,18 @@ function renderStagePills(eco) {
   const row = document.getElementById('stage-pills-row');
   row.innerHTML = allStages.map((s, i) => {
     let cls, arrow = '';
-    if (s.sequence < currentSeq) cls = 'stage-pill--done';
-    else if (s.sequence === currentSeq) cls = 'stage-pill--current';
-    else cls = 'stage-pill--future';
-    if (i < allStages.length - 1) arrow = '<span class="stage-arrow">›</span>';
-    return `<div class="stage-pill-item"><span class="stage-pill ${cls}">${s.name}</span>${arrow}</div>`;
+    if (s.sequence < currentSeq) cls = 'bg-success text-white border-0';
+    else if (s.sequence === currentSeq) cls = 'bg-primary text-white border-0 shadow-sm';
+    else cls = 'bg-body-secondary text-secondary border-0 opacity-75';
+    if (i < allStages.length - 1) arrow = '<span class="text-muted mx-1 px-1 opacity-50">›</span>';
+    return `<div class="d-flex align-items-center"><span class="badge rounded-pill px-3 py-2 fw-medium ${cls}">${s.name}</span>${arrow}</div>`;
   }).join('');
 }
 
 function applyStateUI(eco) {
   ecoData = eco;
   document.getElementById('page-title').textContent = eco.title;
-  document.getElementById('page-subtitle').textContent = `${eco.eco_type.toUpperCase()} · ${eco.status.toUpperCase()}`;
+  document.getElementById('page-subtitle').innerHTML = `<span class="badge bg-secondary-subtle text-secondary me-2 border">${eco.eco_type.toUpperCase()}</span> <span class="badge bg-info-subtle text-info text-uppercase border">${eco.status}</span>`;
 
   document.getElementById('field-title').value           = eco.title;
   document.getElementById('field-eco-type').value        = eco.eco_type;
@@ -143,10 +180,8 @@ function applyStateUI(eco) {
   document.getElementById('btn-approve').style.display  = isActive && (role==='approver'||role==='admin') ? 'inline-flex' : 'none';
   document.getElementById('btn-reject').style.display   = isActive && (role==='approver'||role==='admin') ? 'inline-flex' : 'none';
 
-  // Lock fields after start
   if (!isDraft) lockAllFields();
 
-  // Show linked record buttons when active
   if (isActive) {
     if (eco.eco_type === 'product') document.getElementById('btn-open-product').style.display = 'inline-flex';
     if (eco.eco_type === 'bom')     document.getElementById('btn-open-bom').style.display = 'inline-flex';
@@ -156,15 +191,15 @@ function applyStateUI(eco) {
   }
 
   if (isApplied) {
-    document.getElementById('page-subtitle').innerHTML += ' <span class="badge badge-success">✅ ECO Applied</span>';
+    document.getElementById('page-subtitle').innerHTML += ' <span class="badge bg-success text-white shadow-sm ms-2">✅ ECO Applied</span>';
   }
 }
 
-// Populate BOM dropdown when product changes
 async function onProductChange() {
   const productId = document.getElementById('field-product').value;
   const ecoType   = document.getElementById('field-eco-type').value;
-  document.getElementById('bom-group').style.display = ecoType === 'bom' ? 'block' : 'none';
+  document.getElementById('bom-group').style.setProperty('display', ecoType === 'bom' ? 'block' : 'none');
+  if (ecoType !== 'bom') document.getElementById('field-bom').value = '';
   if (ecoType === 'bom' && productId) {
     const boms = await api.boms.list('');
     const filtered = boms.filter(b => b.product_id == productId && b.status === 'active');
@@ -176,16 +211,9 @@ async function onProductChange() {
 document.getElementById('field-eco-type').addEventListener('change', onProductChange);
 document.getElementById('field-product').addEventListener('change', onProductChange);
 
-// Button handlers
-document.getElementById('btn-open-product').addEventListener('click', () => {
-  window.open(`product_form.html?id=${ecoData.product}`, '_blank');
-});
-document.getElementById('btn-open-bom').addEventListener('click', () => {
-  window.open(`bom_form.html?id=${ecoData.bom}`, '_blank');
-});
-document.getElementById('btn-view-diff').addEventListener('click', () => {
-  window.open(`eco_diff.html?id=${ecoData.id}`, '_blank');
-});
+document.getElementById('btn-open-product').addEventListener('click', () => { window.open(`product_form.html?id=${ecoData.product}`, '_blank'); });
+document.getElementById('btn-open-bom').addEventListener('click', () => { window.open(`bom_form.html?id=${ecoData.bom}`, '_blank'); });
+document.getElementById('btn-view-diff').addEventListener('click', () => { window.open(`eco_diff.html?id=${ecoData.id}`, '_blank'); });
 
 document.getElementById('btn-save').addEventListener('click', async () => {
   const title            = document.getElementById('field-title').value.trim();
@@ -195,10 +223,14 @@ document.getElementById('btn-save').addEventListener('click', async () => {
   const version_update   = document.getElementById('field-version-update').value === 'true';
   const bom_el           = document.getElementById('field-bom').value;
   const bom              = bom_el ? +bom_el : null;
+  
+  document.getElementById('alert-error').classList.add('d-none');
+  
   if (!title || !eco_type || !product) { showError('Title, Type, and Product are required.'); return; }
   if (eco_type === 'bom' && !bom) { showError('BOM is required for BOM-type ECOs.'); return; }
 
   document.getElementById('btn-save').disabled = true;
+  document.getElementById('btn-save').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving…';
   try {
     const payload = { title, eco_type, product, user, version_update };
     if (bom) payload.bom = bom;
@@ -207,11 +239,12 @@ document.getElementById('btn-save').addEventListener('click', async () => {
       : await api.ecos.create(payload);
     if (!ecoId) { window.location.href = `eco_form.html?id=${eco.id}`; return; }
     applyStateUI(eco);
-    showSuccess('ECO saved.');
+    showSuccess('ECO saved successfully.');
   } catch(e) {
     showError(e.message);
   } finally {
     document.getElementById('btn-save').disabled = false;
+    document.getElementById('btn-save').textContent = 'Save';
   }
 });
 
@@ -249,19 +282,13 @@ document.getElementById('btn-reject').addEventListener('click', async () => {
   } catch(e) { showError(e.message); }
 });
 
-// Init
 async function init() {
-  // Load stages
-  try {
-    allStages = await api.settings.stages.list();
-  } catch { /* may fail for non-admin — fetch non-admin friendly version later */ }
-
-  // User dropdown
+  try { allStages = await api.settings.stages.list(); } catch {}
+  
   const users = await api.auth.users();
   document.getElementById('field-user').innerHTML = users.map(u=>`<option value="${u.id}">${u.login_id} (${u.role})</option>`).join('');
   document.getElementById('field-user').value = userId;
 
-  // Product dropdown
   const products = await api.products.list('', 'active');
   document.getElementById('field-product').innerHTML =
     '<option value="">Select product…</option>' + products.map(p=>`<option value="${p.id}">${p.name} (v${p.version})</option>`).join('');

@@ -1,91 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>PLM — Product</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../static/css/main.css">
+<script src="../static/js/theme.js"></script>
 </head>
-<body>
-<header class="topbar">
-  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
-  <div class="topbar__right">
-    <div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div>
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px; background: linear-gradient(135deg, #0d6efd, #6610f2); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ffffff" viewBox="0 0 16 16"><path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923z"/></svg></div>
+      PLM System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topNav">
+      <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
+        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="Sign out" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">
+          👤
+        </button>
+      </div>
+    </div>
   </div>
-</header>
-<nav class="sidebar">
-  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
-  <a href="products.html" class="sidebar__link active"><span class="sidebar__link-icon">📦</span> Products</a>
-  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
-  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
-  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
 </nav>
-<main class="main">
-  <div class="page-header">
-    <div>
-      <h1 class="page-title" id="page-title">New Product</h1>
-      <p class="page-subtitle" id="page-subtitle">Fill in the product details below</p>
+
+<div class="container-fluid flex-grow-1 d-flex p-0" style="overflow-x: hidden;">
+  <!-- Sidebar -->
+  <div class="sidebar border-end p-3 d-none d-lg-block bg-body">
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-2">Main Menu</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="dashboard.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🏠</span> Dashboard</a>
+      <a href="products.html" class="nav-link active d-flex align-items-center gap-2"><span class="fs-5">📦</span> Products</a>
+      <a href="bom.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🔧</span> Bill of Materials</a>
+      <a href="ecos.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📋</span> ECOs</a>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="location.href='products.html'">← Back</button>
-      <button class="btn btn-primary" id="btn-save">Save Product</button>
+    <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-4">Insights</div>
+    <div class="nav flex-column nav-pills gap-1">
+      <a href="reports.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📊</span> Reports</a>
+      <a href="settings.html" class="nav-link d-flex align-items-center gap-2" id="settings-link" style="display:none !important;"><span class="fs-5">⚙️</span> Settings</a>
     </div>
   </div>
 
-  <div id="alert-error" class="alert alert-error" style="display:none">
-    <span>❌</span> <span id="alert-msg"></span>
-  </div>
-
-  <div class="card">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="form-label">Product Name <span class="required">*</span></label>
-        <input class="form-control" id="field-name" maxlength="255" placeholder="Enter product name">
+  <main class="main-content flex-grow-1 p-4 p-md-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h1 class="h2 fw-bold mb-1" id="page-title">New Product</h1>
+        <p class="text-secondary mb-0" id="page-subtitle">Fill in the product details below</p>
       </div>
-      <div class="form-group">
-        <label class="form-label">Sales Price <span class="required">*</span></label>
-        <input class="form-control" id="field-sales-price" type="number" step="0.01" min="0" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Cost Price <span class="required">*</span></label>
-        <input class="form-control" id="field-cost-price" type="number" step="0.01" min="0" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Version</label>
-        <input class="form-control" id="field-version" readonly placeholder="Auto-assigned">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <input class="form-control" id="field-status" readonly placeholder="Active">
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" onclick="location.href='products.html'">← Back</button>
+        <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm hover-elevate transition-all" id="btn-save">Save Product</button>
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Attachments (PDF, Excel, Images)</label>
-      <input class="form-control" id="field-attachments" type="file" multiple
-             accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.gif" id="btn-save">
+    <div id="alert-error" class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle">
+      <span class="fs-5">❌</span> <span id="alert-msg"></span>
     </div>
 
-    <div id="attachments-list" style="margin-top:8px"></div>
-  </div>
+    <div class="card bg-body border-0 shadow-sm mb-4">
+      <div class="card-body p-4 p-md-5">
+        <div class="row g-4">
+          <div class="col-12">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Product Name <span class="text-danger">*</span></label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-name" maxlength="255" placeholder="Enter product name">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Sales Price <span class="text-danger">*</span></label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-body-tertiary border-0">$</span>
+              <input class="form-control bg-body-tertiary border-0" id="field-sales-price" type="number" step="0.01" min="0" placeholder="0.00">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Cost Price <span class="text-danger">*</span></label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-body-tertiary border-0">$</span>
+              <input class="form-control bg-body-tertiary border-0" id="field-cost-price" type="number" step="0.01" min="0" placeholder="0.00">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Version</label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-version" readonly placeholder="Auto-assigned">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-medium text-secondary small text-uppercase">Status</label>
+            <input class="form-control form-control-lg bg-body-tertiary border-0" id="field-status" readonly placeholder="Active">
+          </div>
+        </div>
 
-  <!-- Version History (shown in view mode) -->
-  <div id="version-history-section" style="margin-top:24px;display:none">
-    <h3 style="margin-bottom:12px;font-size:16px">📜 Version History</h3>
-    <div class="table-wrap" id="version-history-body"></div>
-  </div>
-</main>
+        <hr class="my-5 border-secondary-subtle">
 
+        <div class="mb-3">
+          <label class="form-label fw-medium text-secondary small text-uppercase">Attachments (PDF, Excel, Images)</label>
+          <input class="form-control bg-body-tertiary border-0" id="field-attachments" type="file" multiple accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.gif">
+        </div>
+        <div id="attachments-list" class="mt-3"></div>
+      </div>
+    </div>
+
+    <!-- Version History -->
+    <div id="version-history-section" class="d-none">
+      <h3 class="h5 fw-bold mb-3 mt-5 d-flex align-items-center gap-2 text-secondary"><span class="fs-4">📜</span> Version History</h3>
+      <div class="card bg-body border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive" id="version-history-body"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
 import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
 const role = getCurrentRole();
+if (role === 'admin') document.getElementById('settings-link').style.setProperty('display', 'flex', 'important');
 const params = new URLSearchParams(location.search);
 const productId = params.get('id');
 
 function showError(msg) {
   document.getElementById('alert-msg').textContent = msg;
-  document.getElementById('alert-error').style.display = 'flex';
+  document.getElementById('alert-error').classList.remove('d-none');
+  document.getElementById('alert-error').classList.add('d-flex');
 }
 
 function lockForm() {
@@ -99,7 +140,7 @@ if (productId) {
   document.getElementById('page-title').textContent = 'Product Details';
   document.getElementById('page-subtitle').textContent = 'View-only — changes via ECO only';
   lockForm();
-  document.getElementById('version-history-section').style.display = 'block';
+  document.getElementById('version-history-section').classList.remove('d-none');
 
   (async () => {
     try {
@@ -112,15 +153,15 @@ if (productId) {
 
       if (p.attachments?.length) {
         document.getElementById('attachments-list').innerHTML =
-          '<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Attachments:</div>' +
-          p.attachments.map(a=>`<a href="${a.file_path}" target="_blank" style="display:block;margin-bottom:4px;font-size:13px">📎 ${a.file_name}</a>`).join('');
+          '<div class="text-secondary small fw-medium mb-2 text-uppercase">Attachments:</div>' +
+          p.attachments.map(a=>`<a href="${a.file_path}" target="_blank" class="d-block mb-1 text-decoration-none text-primary">📎 ${a.file_name}</a>`).join('');
       }
 
       // Version history
       const versions = await api.products.versions(productId);
       document.getElementById('version-history-body').innerHTML =
-        `<table class="data-table"><thead><tr><th>Version</th><th>Status</th><th>Sales Price</th><th>Cost Price</th><th>Created</th></tr></thead><tbody>
-        ${versions.map(v=>`<tr><td>v${v.version}</td><td><span class="badge ${v.status==='active'?'badge-success':'badge-danger'}">${v.status}</span></td><td>$${v.sales_price}</td><td>$${v.cost_price}</td><td>${new Date(v.created_at).toLocaleDateString()}</td></tr>`).join('')}
+        `<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-4">Version</th><th>Status</th><th>Sales Price</th><th>Cost Price</th><th class="pe-4">Created</th></tr></thead><tbody>
+        ${versions.map(v=>`<tr><td class="ps-4"><span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3">v${v.version}</span></td><td><span class="badge bg-${v.status==='active'?'success':'danger'}-subtle text-${v.status==='active'?'success':'danger'} border border-${v.status==='active'?'success':'danger'}-subtle rounded-pill px-3 py-2 text-capitalize">${v.status}</span></td><td>$${v.sales_price}</td><td>$${v.cost_price}</td><td class="pe-4">${new Date(v.created_at).toLocaleDateString()}</td></tr>`).join('')}
         </tbody></table>`;
     } catch (e) { showError(e.message); }
   })();
@@ -136,6 +177,9 @@ document.getElementById('btn-save').addEventListener('click', async () => {
   const name = document.getElementById('field-name').value.trim();
   const salesPrice = document.getElementById('field-sales-price').value;
   const costPrice  = document.getElementById('field-cost-price').value;
+  
+  document.getElementById('alert-error').classList.add('d-none');
+  
   if (!name || !salesPrice || !costPrice) { showError('Please fill all required fields.'); return; }
 
   const formData = new FormData();
@@ -146,7 +190,7 @@ document.getElementById('btn-save').addEventListener('click', async () => {
   for (const f of files) formData.append('attachments', f);
 
   document.getElementById('btn-save').disabled = true;
-  document.getElementById('btn-save').textContent = 'Saving…';
+  document.getElementById('btn-save').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving…';
 
   try {
     const p = await api.products.create(formData);
