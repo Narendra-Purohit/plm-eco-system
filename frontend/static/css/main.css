@@ -89,6 +89,8 @@ body {
   flex: 1;
   min-width: 0;
   overflow-x: hidden;
+  margin-left: var(--sidebar-w);
+  transition: margin-left var(--slow) var(--ez);
 }
 
 /* ----------------------------------------------------------------
