@@ -3,7 +3,7 @@ from django.db import models
 
 class ECOStage(models.Model):
     name            = models.CharField(max_length=100)
-    sequence        = models.IntegerField()
+    sequence        = models.IntegerField(unique=True)
     is_default_new  = models.BooleanField(default=False)
     is_default_done = models.BooleanField(default=False)
 

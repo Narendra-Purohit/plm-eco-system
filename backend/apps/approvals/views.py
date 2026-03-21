@@ -2,7 +2,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from apps.users.permissions import IsAdminOnly
-from apps.audit.models import AuditLog
 from apps.approvals.models import ApprovalConfig, ApprovalRecord
 from .serializers import ApprovalConfigSerializer
 

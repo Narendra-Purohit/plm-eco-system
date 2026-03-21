@@ -9,7 +9,10 @@ from .serializers import ECOStageSerializer, ApprovalConfigSerializer
 
 
 class ECOStageListCreateView(APIView):
-    permission_classes = [IsAdminOnly]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
+        return [IsAdminOnly()]
 
     def get(self, request):
         stages = ECOStage.objects.all().order_by('sequence')

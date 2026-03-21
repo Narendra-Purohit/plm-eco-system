@@ -525,3 +525,59 @@ body.high-density .btn { padding: 0.35rem 0.75rem !important; font-size: 0.8rem 
 .auth-split-layout {
   min-height: 100dvh; /* dynamic viewport height for iOS Safari */
 }
+
+/* ================================================================
+   FINAL POLISH (v3.1)
+   ================================================================ */
+
+/* Premium iOS-style borderless form controls globally */
+.main-content .form-control,
+.main-content .form-select,
+.modal-content .form-control,
+.modal-content .form-select {
+  background-color: var(--bg-body-tertiary) !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--bg-card) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-glow) !important;
+}
+
+/* Floating Toast Notifications (overriding default inline alerts) */
+.alert {
+  position: fixed !important;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: var(--shadow-md) !important;
+  backdrop-filter: blur(12px);
+  animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  border: none !important;
+}
+[data-bs-theme="dark"] .alert-danger { background: rgba(220, 53, 69, 0.15) !important; border-left: 4px solid #dc3545 !important; color: #ff8a95 !important; }
+[data-bs-theme="light"] .alert-danger { background: rgba(220, 53, 69, 0.1) !important; border-left: 4px solid #dc3545 !important; color: #dc3545 !important; }
+[data-bs-theme="dark"] .alert-success { background: rgba(74, 222, 128, 0.15) !important; border-left: 4px solid #4ade80 !important; color: #4ade80 !important; }
+
+@keyframes toastSlideIn {
+  0% { opacity: 0; transform: translateX(50px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Make auth screens' alerts inline again, or else they look weird floating */
+.auth-form-inner .alert {
+  position: relative !important;
+  top: auto; right: auto;
+  min-width: 0;
+  box-shadow: none !important;
+  animation: fadeUp 0.3s forwards;
+}

@@ -6,7 +6,7 @@ from apps.settings_app.models import ECOStage
 class ApprovalConfig(models.Model):
     CATEGORY_CHOICES = [('required', 'Required'), ('optional', 'Optional')]
 
-    stage    = models.ForeignKey(ECOStage, on_delete=models.CASCADE, related_name='approvals')
+    stage    = models.ForeignKey(ECOStage, on_delete=models.PROTECT, related_name='approvals')
     user     = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='approval_configs')
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
 
