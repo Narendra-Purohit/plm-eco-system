@@ -12,7 +12,11 @@
 <nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
   <div class="container-fluid px-4">
     <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
-      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px; background: linear-gradient(135deg, #0d6efd, #6610f2); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ffffff" viewBox="0 0 16 16"><path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923z"/></svg></div>
+      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+  <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
       PLM System
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
@@ -59,50 +63,71 @@
     <!-- Stats -->
     <div class="row g-4 mb-5" id="stat-grid">
       <div class="col-sm-6 col-xl-3">
-        <div class="card bg-body text-body border-0 h-100 hover-elevate transition-all">
-          <div class="card-body p-4">
-            <div class="fs-2 mb-2">📦</div>
-            <div class="text-uppercase text-muted small fw-bold mb-1">Active Products</div>
-            <div class="display-5 fw-bold mb-0" id="stat-products">
-              <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #155EEF !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(21,94,239,0.1); color:#155EEF;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+              </div>
+              <span class="badge" style="background:rgba(21,94,239,0.1); color:#155EEF; border:none !important;">PRODUCTS</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-products"><span class="spinner-border spinner-border-sm text-primary" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">Active in system</div>
             </div>
           </div>
         </div>
       </div>
       <div class="col-sm-6 col-xl-3">
-        <div class="card bg-body text-body border-0 h-100 hover-elevate transition-all">
-          <div class="card-body p-4">
-            <div class="fs-2 mb-2">🔧</div>
-            <div class="text-uppercase text-muted small fw-bold mb-1">Active BOMs</div>
-            <div class="display-5 fw-bold mb-0" id="stat-boms">
-              <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #0891B2 !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(8,145,178,0.1); color:#0891B2;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"></path></svg>
+              </div>
+              <span class="badge" style="background:rgba(8,145,178,0.1); color:#0891B2; border:none !important;">BOMS</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-boms"><span class="spinner-border spinner-border-sm text-primary" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">Active assemblies</div>
             </div>
           </div>
         </div>
       </div>
       <div class="col-sm-6 col-xl-3">
-        <div class="card bg-body text-body border-0 h-100 hover-elevate transition-all">
-          <div class="card-body p-4">
-            <div class="fs-2 mb-2">📋</div>
-            <div class="text-uppercase text-muted small fw-bold mb-1">Open ECOs</div>
-            <div class="display-5 fw-bold mb-0" id="stat-ecos">
-              <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #D97706 !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(217,119,6,0.1); color:#D97706;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line></svg>
+              </div>
+              <span class="badge" style="background:rgba(217,119,6,0.1); color:#D97706; border:none !important;">OPEN ECOs</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-ecos"><span class="spinner-border spinner-border-sm text-warning" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">Awaiting action</div>
             </div>
           </div>
         </div>
       </div>
       <div class="col-sm-6 col-xl-3">
-        <div class="card bg-body text-body border-0 h-100 hover-elevate transition-all">
-          <div class="card-body p-4">
-            <div class="fs-2 mb-2">✅</div>
-            <div class="text-uppercase text-muted small fw-bold mb-1">Applied ECOs</div>
-            <div class="display-5 fw-bold mb-0" id="stat-applied">
-              <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+        <div class="card h-100 hover-elevate transition-all" style="border-left: 3px solid #059669 !important;">
+          <div class="card-body p-4 d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="stat-icon-box" style="background: rgba(5,150,105,0.1); color:#059669;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <span class="badge" style="background:rgba(5,150,105,0.1); color:#059669; border:none !important;">APPLIED</span>
+            </div>
+            <div>
+              <div class="display-6 fw-bold lh-1 mb-1" id="stat-applied"><span class="spinner-border spinner-border-sm text-success" role="status"></span></div>
+              <div class="small" style="color:var(--text-muted);">ECOs released</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
 
     <!-- Recent ECOs -->
     <div class="card bg-body border-0 overflow-hidden text-body mb-4">
@@ -124,13 +149,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
-import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+import { api, getCurrentRole, isLoggedIn, getTokenPayload } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
 const role = getCurrentRole() || localStorage.getItem('role');
-const loginId = localStorage.getItem('login_id');
+const payload = getTokenPayload();
 
-document.getElementById('greeting').textContent = `Welcome back, ${loginId}`;
+// Prefer a 'name' field in the token, fallback to login_id or 'User'
+const userName = payload?.name || payload?.first_name || payload?.username || localStorage.getItem('login_id') || 'User';
+const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+
+document.getElementById('greeting').textContent = `Welcome back, ${displayName} 👋`;
 document.getElementById('role-badge').textContent = role?.toUpperCase();
 if (role === 'admin') document.getElementById('settings-link').style.setProperty('display', 'flex', 'important');
 
