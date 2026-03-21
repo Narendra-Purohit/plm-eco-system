@@ -42,11 +42,18 @@ class RolePermissionTest(TestCase):
         # 403 = permission denied; 400 = validation (means it passed permission but failed validation)
         self.assertIn(resp.status_code, [400, 403])
 
-    def test_non_admin_cannot_access_settings(self):
-        """Non-admin users must be blocked from the settings/stages endpoint."""
+    def test_non_admin_can_read_stages(self):
+        """All authenticated users should be able to GET stages (needed to render ECO workflow)."""
         client = APIClient()
         client.force_authenticate(user=self.engineering)
         resp = client.get('/api/settings/stages/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_admin_cannot_create_stages(self):
+        """Non-admin users must be blocked from creating/modifying stages."""
+        client = APIClient()
+        client.force_authenticate(user=self.engineering)
+        resp = client.post('/api/settings/stages/', {'name': 'Hack', 'sequence': 99}, format='json')
         self.assertIn(resp.status_code, [403, 401])
 
     def test_admin_can_access_settings(self):

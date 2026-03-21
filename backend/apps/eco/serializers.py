@@ -24,7 +24,7 @@ class ECOSerializer(serializers.ModelSerializer):
                   'bom', 'bom_reference', 'user', 'user_name',
                   'effective_date', 'version_update', 'stage', 'stage_name',
                   'status', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'effective_date', 'stage', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user', 'effective_date', 'stage', 'status', 'created_at', 'updated_at']
 
 
 class ECODetailSerializer(serializers.ModelSerializer):

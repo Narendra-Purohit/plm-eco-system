@@ -23,6 +23,9 @@ class AuditLog(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['event_type', 'timestamp'], name='audit_event_time_idx'),
+        ]
 
     def save(self, *args, **kwargs):
         if self.pk:

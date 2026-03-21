@@ -42,6 +42,39 @@ def apply_eco(eco, user):
                     if hasattr(new_product, change.field_name):
                         setattr(new_product, change.field_name, change.new_value)
                 new_product.save()
+                
+                # Clone Attachments
+                from apps.products.models import ProductAttachment
+                for att in old_product.attachments.all():
+                    ProductAttachment.objects.create(
+                        product=new_product,
+                        file_name=att.file_name,
+                        file_path=att.file_path
+                    )
+                    
+                # Clone BOMs
+                for old_p_bom in old_product.boms.filter(status='active'):
+                    new_p_bom = BOM(
+                        product=new_product,
+                        reference=old_p_bom.reference,
+                        quantity=old_p_bom.quantity,
+                        unit=old_p_bom.unit,
+                        version=old_p_bom.version + 1,
+                        status='active',
+                    )
+                    new_p_bom.save()
+                    for comp in old_p_bom.components.all():
+                        BOMComponent.objects.create(
+                            bom=new_p_bom, component_product=comp.component_product,
+                            quantity=comp.quantity, unit=comp.unit
+                        )
+                    for op in old_p_bom.operations.all():
+                        BOMOperation.objects.create(
+                            bom=new_p_bom, work_center=op.work_center,
+                            expected_duration_mins=op.expected_duration_mins
+                        )
+                    BOM.objects.filter(pk=old_p_bom.pk).update(status='archived')
+
                 # Archive old
                 old_product.status = 'archived'
                 Product.objects.filter(pk=old_product.pk).update(status='archived')
@@ -53,6 +86,7 @@ def apply_eco(eco, user):
                 # Clone BOM
                 new_bom = BOM(
                     product=old_bom.product,
+                    reference=old_bom.reference,
                     quantity=old_bom.quantity,
                     unit=old_bom.unit,
                     version=old_bom.version + 1,
@@ -61,9 +95,18 @@ def apply_eco(eco, user):
                 new_bom.save()  # auto-generates reference
                 # Clone components
                 for comp in old_bom.components.all():
+                    qty = comp.quantity
+                    for change in changes.filter(entity_type='bomcomponent'):
+                        if change.field_name == str(comp.component_product.id) or change.field_name == comp.component_product.name:
+                            try:
+                                from decimal import Decimal
+                                qty = Decimal(str(change.new_value))
+                            except Exception:
+                                qty = comp.quantity
+
                     BOMComponent.objects.create(
                         bom=new_bom, component_product=comp.component_product,
-                        quantity=comp.quantity, unit=comp.unit
+                        quantity=qty, unit=comp.unit
                     )
                 # Clone operations
                 for op in old_bom.operations.all():
@@ -92,6 +135,16 @@ def apply_eco(eco, user):
                     if hasattr(eco.bom, change.field_name):
                         setattr(eco.bom, change.field_name, change.new_value)
                 eco.bom.save()
+                
+                for comp in eco.bom.components.all():
+                    for change in changes.filter(entity_type='bomcomponent'):
+                        if change.field_name == str(comp.component_product.id) or change.field_name == comp.component_product.name:
+                            try:
+                                from decimal import Decimal
+                                comp.quantity = Decimal(str(change.new_value))
+                            except Exception:
+                                pass
+                            comp.save()
 
         # Finalize ECO
         eco.status = 'applied'
@@ -118,9 +171,8 @@ class ECOListCreateView(APIView):
 
     def post(self, request):
         # Default stage = New
-        try:
-            new_stage = ECOStage.objects.get(is_default_new=True)
-        except ECOStage.DoesNotExist:
+        new_stage = ECOStage.objects.filter(is_default_new=True).first()
+        if not new_stage:
             return Response({'error': 'Default New stage not configured. Run seed first.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         data = request.data.copy()
@@ -133,7 +185,10 @@ class ECOListCreateView(APIView):
 
 
 class ECODetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'PUT', 'DELETE']:
+            return [IsEngineeringOrAdmin()]
+        return [IsAuthenticated()]
 
     def get_object(self, pk):
         try:
@@ -157,6 +212,7 @@ class ECODetailView(APIView):
         serializer = ECOSerializer(eco, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            eco.refresh_from_db()
             return Response(ECODetailSerializer(eco).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -196,6 +252,13 @@ class ECOValidateView(APIView):
         if eco.status != 'active':
             return Response({'error': 'ECO is not active.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Bug 3 Fix: Only the ECO owner or an Admin should be able to manually skip/advance
+        if request.user != eco.user and not request.user.is_staff and request.user.role != 'admin':
+            return Response(
+                {'error': 'Only the ECO creator or an Admin can manually validate this stage.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         # Check all required approvals are done for current stage
         required_configs = ApprovalConfig.objects.filter(stage=eco.stage, category='required')
         for config in required_configs:
@@ -215,6 +278,7 @@ class ECOValidateView(APIView):
 
         if next_stage.is_default_done:
             apply_eco(eco, request.user)
+            eco.refresh_from_db()
 
         return Response(ECODetailSerializer(eco).data)
 
@@ -243,10 +307,15 @@ class ECOApproveView(APIView):
 
         # Auto-advance if all required approvals done
         required = ApprovalConfig.objects.filter(stage=eco.stage, category='required')
-        all_done = all(
-            ApprovalRecord.objects.filter(eco=eco, stage=eco.stage, user=c.user).exists()
-            for c in required
-        )
+        if required.exists():
+            all_done = all(
+                ApprovalRecord.objects.filter(eco=eco, stage=eco.stage, user=c.user).exists()
+                for c in required
+            )
+        else:
+            # Bug 3 Fix: If there are no required approvers, do not let an optional approval auto-advance the stage.
+            all_done = False
+
         if all_done:
             next_stage = get_next_stage(eco.stage)
             if next_stage:
@@ -256,6 +325,7 @@ class ECOApproveView(APIView):
                           new_value=next_stage.name)
                 if next_stage.is_default_done:
                     apply_eco(eco, request.user)
+                    eco.refresh_from_db()
 
         return Response(ECODetailSerializer(eco).data)
 
@@ -268,10 +338,14 @@ class ECORejectView(APIView):
             eco = ECO.objects.get(pk=pk)
         except ECO.DoesNotExist:
             return Response({'error': 'ECO not found'}, status=status.HTTP_404_NOT_FOUND)
+        if eco.status != 'active':
+            return Response({'error': 'Only active ECOs can be rejected.'}, status=status.HTTP_400_BAD_REQUEST)
         reason = request.data.get('reason', 'No reason provided')
+        eco.status = 'rejected'
+        eco.save()
         log_event('approval_action', 'eco', eco.id, user=request.user,
                   new_value=f'Rejected: {reason}')
-        return Response({'message': 'ECO rejected.', 'reason': reason})
+        return Response({'message': 'ECO rejected.', 'reason': reason, 'status': eco.status})
 
 
 class ECODiffView(APIView):
@@ -321,7 +395,8 @@ class ECOProposedChangeCreateView(APIView):
             eco=eco, entity_type=entity_type,
             field_name=field_name, old_value=old_value, new_value=new_value
         )
-        log_event('data_changed', eco.eco_type, eco.product_id, user=request.user,
+        entity_id = eco.product_id if eco.eco_type == 'product' else eco.bom_id
+        log_event('data_changed', eco.eco_type, entity_id, user=request.user,
                   field_name=field_name, old_value=old_value, new_value=new_value)
         return Response({'id': change.id, 'field_name': field_name,
                          'old_value': old_value, 'new_value': new_value},

@@ -23,7 +23,7 @@ class SignupSerializer(serializers.ModelSerializer):
         fields = ['login_id', 'email', 'password', 'confirm_password', 'role']
         extra_kwargs = {
             'password': {'write_only': True},
-            'role': {'required': False},
+            'role': {'required': False, 'read_only': True},
         }
 
     def validate_login_id(self, value):

@@ -7,7 +7,7 @@ from apps.settings_app.models import ECOStage
 
 class ECO(models.Model):
     ECO_TYPE_CHOICES = [('product', 'Product'), ('bom', 'Bill of Materials')]
-    STATUS_CHOICES   = [('draft', 'Draft'), ('active', 'Active'), ('applied', 'Applied')]
+    STATUS_CHOICES   = [('draft', 'Draft'), ('active', 'Active'), ('applied', 'Applied'), ('rejected', 'Rejected')]
 
     title          = models.CharField(max_length=255)
     eco_type       = models.CharField(max_length=20, choices=ECO_TYPE_CHOICES)
@@ -21,12 +21,22 @@ class ECO(models.Model):
     created_at     = models.DateTimeField(auto_now_add=True)
     updated_at     = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status'], name='eco_status_idx'),
+            models.Index(fields=['product', 'status'], name='eco_product_status_idx'),
+        ]
+        
     def __str__(self):
         return f'ECO: {self.title} [{self.status}]'
 
 
 class ECOProposedChange(models.Model):
-    ENTITY_TYPE_CHOICES = [('product', 'Product'), ('bom', 'BOM')]
+    ENTITY_TYPE_CHOICES = [
+        ('product', 'Product'), 
+        ('bom', 'BOM'), 
+        ('bomcomponent', 'BOM Component')
+    ]
 
     eco         = models.ForeignKey(ECO, on_delete=models.CASCADE, related_name='proposed_changes')
     entity_type = models.CharField(max_length=20, choices=ENTITY_TYPE_CHOICES)

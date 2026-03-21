@@ -17,6 +17,7 @@ class ECOReportView(APIView):
                 'title': e.title,
                 'eco_type': e.eco_type,
                 'product_name': e.product.name if e.product else '',
+                'bom_reference': e.bom.reference if e.bom else '',
                 'stage': e.stage.name if e.stage else '',
                 'status': e.status,
                 'effective_date': e.effective_date,
