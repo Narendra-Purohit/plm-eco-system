@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — Product</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right">
+    <div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div>
+  </div>
+</header>
+<nav class="sidebar">
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link active"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+</nav>
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" id="page-title">New Product</h1>
+      <p class="page-subtitle" id="page-subtitle">Fill in the product details below</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="location.href='products.html'">← Back</button>
+      <button class="btn btn-primary" id="btn-save">Save Product</button>
+    </div>
+  </div>
+
+  <div id="alert-error" class="alert alert-error" style="display:none">
+    <span>❌</span> <span id="alert-msg"></span>
+  </div>
+
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">Product Name <span class="required">*</span></label>
+        <input class="form-control" id="field-name" maxlength="255" placeholder="Enter product name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sales Price <span class="required">*</span></label>
+        <input class="form-control" id="field-sales-price" type="number" step="0.01" min="0" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cost Price <span class="required">*</span></label>
+        <input class="form-control" id="field-cost-price" type="number" step="0.01" min="0" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Version</label>
+        <input class="form-control" id="field-version" readonly placeholder="Auto-assigned">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <input class="form-control" id="field-status" readonly placeholder="Active">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Attachments (PDF, Excel, Images)</label>
+      <input class="form-control" id="field-attachments" type="file" multiple
+             accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.gif" id="btn-save">
+    </div>
+
+    <div id="attachments-list" style="margin-top:8px"></div>
+  </div>
+
+  <!-- Version History (shown in view mode) -->
+  <div id="version-history-section" style="margin-top:24px;display:none">
+    <h3 style="margin-bottom:12px;font-size:16px">📜 Version History</h3>
+    <div class="table-wrap" id="version-history-body"></div>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+
+const role = getCurrentRole();
+const params = new URLSearchParams(location.search);
+const productId = params.get('id');
+
+function showError(msg) {
+  document.getElementById('alert-msg').textContent = msg;
+  document.getElementById('alert-error').style.display = 'flex';
+}
+
+function lockForm() {
+  document.querySelectorAll('#field-name,#field-sales-price,#field-cost-price,#field-attachments')
+    .forEach(el => el.disabled = true);
+  document.getElementById('btn-save').style.display = 'none';
+}
+
+if (productId) {
+  // View mode
+  document.getElementById('page-title').textContent = 'Product Details';
+  document.getElementById('page-subtitle').textContent = 'View-only — changes via ECO only';
+  lockForm();
+  document.getElementById('version-history-section').style.display = 'block';
+
+  (async () => {
+    try {
+      const p = await api.products.get(productId);
+      document.getElementById('field-name').value = p.name;
+      document.getElementById('field-sales-price').value = p.sales_price;
+      document.getElementById('field-cost-price').value = p.cost_price;
+      document.getElementById('field-version').value = `v${p.version}`;
+      document.getElementById('field-status').value = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+
+      if (p.attachments?.length) {
+        document.getElementById('attachments-list').innerHTML =
+          '<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Attachments:</div>' +
+          p.attachments.map(a=>`<a href="${a.file_path}" target="_blank" style="display:block;margin-bottom:4px;font-size:13px">📎 ${a.file_name}</a>`).join('');
+      }
+
+      // Version history
+      const versions = await api.products.versions(productId);
+      document.getElementById('version-history-body').innerHTML =
+        `<table class="data-table"><thead><tr><th>Version</th><th>Status</th><th>Sales Price</th><th>Cost Price</th><th>Created</th></tr></thead><tbody>
+        ${versions.map(v=>`<tr><td>v${v.version}</td><td><span class="badge ${v.status==='active'?'badge-success':'badge-danger'}">${v.status}</span></td><td>$${v.sales_price}</td><td>$${v.cost_price}</td><td>${new Date(v.created_at).toLocaleDateString()}</td></tr>`).join('')}
+        </tbody></table>`;
+    } catch (e) { showError(e.message); }
+  })();
+} else {
+  // Create mode
+  if (role === 'operations') {
+    showError('Operations users cannot create products.');
+    lockForm();
+  }
+}
+
+document.getElementById('btn-save').addEventListener('click', async () => {
+  const name = document.getElementById('field-name').value.trim();
+  const salesPrice = document.getElementById('field-sales-price').value;
+  const costPrice  = document.getElementById('field-cost-price').value;
+  if (!name || !salesPrice || !costPrice) { showError('Please fill all required fields.'); return; }
+
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('sales_price', salesPrice);
+  formData.append('cost_price', costPrice);
+  const files = document.getElementById('field-attachments').files;
+  for (const f of files) formData.append('attachments', f);
+
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('btn-save').textContent = 'Saving…';
+
+  try {
+    const p = await api.products.create(formData);
+    window.location.href = `product_form.html?id=${p.id}`;
+  } catch (e) {
+    showError(e.message);
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('btn-save').textContent = 'Save Product';
+  }
+});
+</script>
+</body>
+</html>

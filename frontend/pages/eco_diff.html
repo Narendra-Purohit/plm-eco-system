@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — ECO Changes</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
+</header>
+<main style="max-width:900px;margin:80px auto;padding:28px">
+  <div class="page-header">
+    <div><h1 class="page-title" id="eco-title">ECO Diff View</h1><p class="page-subtitle">Proposed field-level changes</p></div>
+    <button class="btn btn-ghost" onclick="window.close()">✕ Close</button>
+  </div>
+  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="err-msg"></span></div>
+  <div class="table-wrap" id="diff-wrap">
+    <div class="loading"><span class="spinner"></span> Loading…</div>
+  </div>
+  <!-- Record change button for engineering -->
+  <div id="add-change-section" style="margin-top:24px;display:none">
+    <h3 style="margin-bottom:12px;font-size:15px;font-weight:600">➕ Record a Proposed Change</h3>
+    <div class="card card-sm" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Entity</label>
+        <select class="form-control" id="new-entity"><option value="product">Product</option><option value="bom">BOM</option></select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Field Name</label>
+        <input class="form-control" id="new-field" placeholder="e.g. sales_price">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Old Value</label>
+        <input class="form-control" id="new-old-val" placeholder="Current value">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">New Value</label>
+        <input class="form-control" id="new-new-val" placeholder="Proposed value">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="btn-add-change" style="margin-top:10px">+ Record Change</button>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+const role  = getCurrentRole();
+const ecoId = new URLSearchParams(location.search).get('id');
+if (!ecoId) { document.getElementById('err-msg').textContent = 'No ECO ID specified.'; document.getElementById('alert-error').style.display='flex'; }
+
+function isNumeric(v) { return !isNaN(parseFloat(v)) && isFinite(v); }
+function diffClass(fieldName, oldV, newV) {
+  if (isNumeric(oldV) && isNumeric(newV)) {
+    return parseFloat(newV) > parseFloat(oldV) ? 'diff-added' : parseFloat(newV) < parseFloat(oldV) ? 'diff-removed' : 'diff-unchanged';
+  }
+  return oldV !== newV ? 'diff-added' : 'diff-unchanged';
+}
+
+async function loadDiff() {
+  try {
+    const [eco, diff] = await Promise.all([api.ecos.get(ecoId), api.ecos.diff(ecoId)]);
+    document.getElementById('eco-title').textContent = eco.title;
+
+    if (!diff.changes.length) {
+      document.getElementById('diff-wrap').innerHTML = '<div class="empty-state"><div class="empty-state__icon">✨</div><div class="empty-state__text">No proposed changes recorded yet.</div></div>';
+    } else {
+      document.getElementById('diff-wrap').innerHTML = `<table class="diff-table">
+        <thead><tr><th>Entity</th><th>Field</th><th class="diff-removed">Old Value</th><th class="diff-added">New Value</th></tr></thead>
+        <tbody>${diff.changes.map(c=>{
+          const cls = diffClass(c.field_name, c.old_value, c.new_value);
+          return `<tr class="${cls}"><td>${c.entity_type}</td><td><code>${c.field_name}</code></td><td class="diff-removed">${c.old_value??'—'}</td><td class="diff-added">${c.new_value??'—'}</td></tr>`;
+        }).join('')}</tbody></table>`;
+    }
+
+    // Show add-change form for active ECOs + engineering/admin
+    if (eco.status === 'active' && (role==='engineering'||role==='admin')) {
+      document.getElementById('add-change-section').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('err-msg').textContent = e.message;
+    document.getElementById('alert-error').style.display = 'flex';
+    document.getElementById('diff-wrap').innerHTML = '';
+  }
+}
+
+document.getElementById('btn-add-change').addEventListener('click', async () => {
+  const entity_type = document.getElementById('new-entity').value;
+  const field_name  = document.getElementById('new-field').value.trim();
+  const old_value   = document.getElementById('new-old-val').value.trim();
+  const new_value   = document.getElementById('new-new-val').value.trim();
+  if (!field_name || !new_value) { alert('Field name and new value are required.'); return; }
+  try {
+    await api.ecos.addChange(ecoId, { entity_type, field_name, old_value, new_value });
+    await loadDiff();
+    document.getElementById('new-field').value = '';
+    document.getElementById('new-old-val').value = '';
+    document.getElementById('new-new-val').value = '';
+  } catch(e) { alert(e.message); }
+});
+
+if (ecoId) loadDiff();
+</script>
+</body>
+</html>

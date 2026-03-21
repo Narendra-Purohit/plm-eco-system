@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — BOM Form</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
+</header>
+<nav class="sidebar">
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link active"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+</nav>
+<main class="main">
+  <div class="page-header">
+    <div><h1 class="page-title" id="page-title">New BOM</h1></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="location.href='bom.html'">← Back</button>
+      <button class="btn btn-primary" id="btn-save">Save BOM</button>
+    </div>
+  </div>
+  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="alert-msg"></span></div>
+
+  <!-- Header Fields -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="form-group"><label class="form-label">Reference</label><input class="form-control" id="field-reference" readonly placeholder="Auto-generated"></div>
+      <div class="form-group"><label class="form-label">Finished Product <span class="required">*</span></label><select class="form-control" id="field-product"><option value="">Select product…</option></select></div>
+      <div class="form-group"><label class="form-label">Quantity <span class="required">*</span></label><input class="form-control" id="field-quantity" type="number" step="0.001" min="0.001" value="1"></div>
+      <div class="form-group"><label class="form-label">Unit</label><select class="form-control" id="field-unit"><option>Units</option><option>Kg</option><option>Liters</option><option>Meters</option><option>Pieces</option></select></div>
+      <div class="form-group"><label class="form-label">Version</label><input class="form-control" id="field-version" readonly placeholder="1"></div>
+      <div class="form-group"><label class="form-label">Status</label><input class="form-control" id="field-status" readonly placeholder="Active"></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="components">🔩 Components</button>
+      <button class="tab-btn" data-tab="operations">⚙️ Work Orders</button>
+    </div>
+
+    <div class="tab-pane active" id="tab-components">
+      <div class="inline-table-wrap">
+        <table class="inline-table">
+          <thead><tr><th>Component Product</th><th>Quantity</th><th>Unit</th><th></th></tr></thead>
+          <tbody id="components-body"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-add-component" style="margin-top:10px">+ Add a product</button>
+    </div>
+
+    <div class="tab-pane" id="tab-operations">
+      <div class="inline-table-wrap">
+        <table class="inline-table">
+          <thead><tr><th>Work Center</th><th>Expected Duration (min)</th><th></th></tr></thead>
+          <tbody id="operations-body"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-add-operation" style="margin-top:10px">+ Add a line</button>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+
+const role = getCurrentRole();
+const bomId = new URLSearchParams(location.search).get('id');
+let activeProducts = [];
+
+function showError(msg) {
+  document.getElementById('alert-msg').textContent = msg;
+  document.getElementById('alert-error').style.display = 'flex';
+}
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+// Product dropdown helper
+function productOptions(selectedId = null) {
+  return activeProducts.map(p =>
+    `<option value="${p.id}" ${p.id == selectedId ? 'selected' : ''}>${p.name}</option>`
+  ).join('');
+}
+
+function addComponentRow(comp = {}) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><select class="form-control comp-product"><option value="">Select…</option>${productOptions(comp.component_product_id)}</select></td>
+    <td><input class="form-control comp-qty" type="number" step="0.001" value="${comp.quantity||''}"></td>
+    <td><select class="form-control comp-unit"><option>Units</option><option>Kg</option><option>Liters</option><option>Meters</option></select></td>
+    <td><button class="btn-row-delete" onclick="this.closest('tr').remove()">🗑️</button></td>`;
+  if (comp.unit) tr.querySelector('.comp-unit').value = comp.unit;
+  document.getElementById('components-body').appendChild(tr);
+}
+
+function addOperationRow(op = {}) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="form-control op-wc" type="text" value="${op.work_center||''}" placeholder="Assembly Line 1"></td>
+    <td><input class="form-control op-dur" type="number" value="${op.expected_duration_mins||'0'}"></td>
+    <td><button class="btn-row-delete" onclick="this.closest('tr').remove()">🗑️</button></td>`;
+  document.getElementById('operations-body').appendChild(tr);
+}
+
+document.getElementById('btn-add-component').addEventListener('click', () => addComponentRow());
+document.getElementById('btn-add-operation').addEventListener('click', () => addOperationRow());
+
+async function init() {
+  // Load active products for dropdowns
+  activeProducts = await api.products.list('', 'active');
+  const productSelect = document.getElementById('field-product');
+  productSelect.innerHTML = `<option value="">Select product…</option>${activeProducts.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}`;
+
+  if (bomId) {
+    document.getElementById('page-title').textContent = 'BOM Details';
+    // Load BOM
+    const bom = await api.boms.get(bomId);
+    document.getElementById('field-reference').value = bom.reference;
+    document.getElementById('field-product').value = bom.product_id;
+    document.getElementById('field-quantity').value = bom.quantity;
+    document.getElementById('field-unit').value = bom.unit;
+    document.getElementById('field-version').value = `v${bom.version}`;
+    document.getElementById('field-status').value = bom.status;
+    // Show components and operations
+    bom.components?.forEach(addComponentRow);
+    bom.operations?.forEach(addOperationRow);
+    // Lock form in view mode
+    if (bom.status === 'archived' || role === 'operations' || role === 'approver') {
+      document.querySelectorAll('.form-control,.btn-row-delete').forEach(el => el.disabled = true);
+      document.getElementById('btn-save').style.display = 'none';
+      document.getElementById('btn-add-component').style.display = 'none';
+      document.getElementById('btn-add-operation').style.display = 'none';
+    }
+  }
+}
+
+document.getElementById('btn-save').addEventListener('click', async () => {
+  const product_id = document.getElementById('field-product').value;
+  const quantity   = document.getElementById('field-quantity').value;
+  const unit       = document.getElementById('field-unit').value;
+  if (!product_id || !quantity) { showError('Product and Quantity are required.'); return; }
+
+  const components = [...document.querySelectorAll('#components-body tr')].map(tr => ({
+    component_product_id: +tr.querySelector('.comp-product').value,
+    quantity: tr.querySelector('.comp-qty').value,
+    unit: tr.querySelector('.comp-unit').value,
+  })).filter(c => c.component_product_id);
+
+  const operations = [...document.querySelectorAll('#operations-body tr')].map(tr => ({
+    work_center: tr.querySelector('.op-wc').value,
+    expected_duration_mins: +tr.querySelector('.op-dur').value,
+  })).filter(o => o.work_center);
+
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('btn-save').textContent = 'Saving…';
+  try {
+    const bom = await api.boms.create({ product_id: +product_id, quantity: +quantity, unit, components, operations });
+    window.location.href = `bom_form.html?id=${bom.id}`;
+  } catch (e) {
+    showError(e.message);
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('btn-save').textContent = 'Save BOM';
+  }
+});
+
+init().catch(e => showError(e.message));
+</script>
+</body>
+</html>

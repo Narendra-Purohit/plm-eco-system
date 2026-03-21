@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — Reports</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
+</header>
+<nav class="sidebar">
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <a href="reports.html" class="sidebar__link active"><span class="sidebar__link-icon">📊</span> Reports</a>
+</nav>
+<main class="main">
+  <div class="page-header"><h1 class="page-title">📊 Reports</h1></div>
+  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="err-msg"></span></div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="ecos">ECO Summary</button>
+    <button class="tab-btn" data-tab="versions">Product Versions</button>
+    <button class="tab-btn" data-tab="boms">BOM History</button>
+    <button class="tab-btn" data-tab="archived">Archived Records</button>
+  </div>
+
+  <div class="tab-pane active" id="tab-ecos">
+    <div class="table-wrap" id="ecos-body"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+  </div>
+  <div class="tab-pane" id="tab-versions">
+    <div class="table-wrap" id="versions-body"></div>
+  </div>
+  <div class="tab-pane" id="tab-boms">
+    <div class="table-wrap" id="boms-body"></div>
+  </div>
+  <div class="tab-pane" id="tab-archived">
+    <div class="table-wrap" id="archived-body"></div>
+  </div>
+</main>
+
+<script type="module">
+import { api, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    loadTab(btn.dataset.tab);
+  });
+});
+
+const loaded = {};
+
+async function loadTab(tab) {
+  if (loaded[tab]) return;
+  loaded[tab] = true;
+  try {
+    switch (tab) {
+      case 'ecos': {
+        const data = await api.reports.ecos();
+        const statusColor = s => s==='applied'?'badge-success':s==='active'?'badge-info':'badge-warning';
+        document.getElementById('ecos-body').innerHTML = data.length === 0
+          ? '<div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No ECOs yet.</div></div>'
+          : `<table class="data-table"><thead><tr><th>Title</th><th>Type</th><th>Product</th><th>Stage</th><th>Status</th><th>Effective Date</th><th>Changes</th></tr></thead>
+            <tbody>${data.map(e=>`<tr>
+              <td><a href="eco_form.html?id=${e.id}">${e.title}</a></td>
+              <td>${e.eco_type}</td><td>${e.product_name}</td>
+              <td>${e.stage}</td>
+              <td><span class="badge ${statusColor(e.status)}">${e.status}</span></td>
+              <td>${e.effective_date ? new Date(e.effective_date).toLocaleDateString() : '—'}</td>
+              <td><a href="eco_diff.html?id=${e.id}" target="_blank" class="btn btn-ghost btn-sm">🔍 Changes</a></td>
+            </tr>`).join('')}</tbody></table>`;
+        break;
+      }
+      case 'versions': {
+        const data = await api.reports.productVersions();
+        document.getElementById('versions-body').innerHTML = data.length === 0
+          ? '<div class="empty-state"><div class="empty-state__icon">📦</div><div class="empty-state__text">No product versions found.</div></div>'
+          : `<table class="data-table"><thead><tr><th>Product Name</th><th>Version</th><th>Status</th><th>Sales Price</th><th>Cost Price</th><th>Created</th></tr></thead>
+            <tbody>${data.map(p=>`<tr>
+              <td>${p.name}</td>
+              <td><span class="pill pill-white">v${p.version}</span></td>
+              <td><span class="badge ${p.status==='active'?'badge-success':'badge-danger'}">${p.status}</span></td>
+              <td>$${p.sales_price}</td><td>$${p.cost_price}</td>
+              <td>${new Date(p.created_at).toLocaleDateString()}</td>
+            </tr>`).join('')}</tbody></table>`;
+        break;
+      }
+      case 'boms': {
+        const data = await api.reports.bomHistory();
+        document.getElementById('boms-body').innerHTML = data.length === 0
+          ? '<div class="empty-state"><div class="empty-state__icon">🔧</div><div class="empty-state__text">No BOMs found.</div></div>'
+          : `<table class="data-table"><thead><tr><th>Reference</th><th>Product</th><th>Version</th><th>Status</th><th>Created</th></tr></thead>
+            <tbody>${data.map(b=>`<tr>
+              <td><b>${b.reference}</b></td><td>${b.product_name}</td>
+              <td><span class="pill pill-white">v${b.version}</span></td>
+              <td><span class="badge ${b.status==='active'?'badge-success':'badge-danger'}">${b.status}</span></td>
+              <td>${new Date(b.created_at).toLocaleDateString()}</td>
+            </tr>`).join('')}</tbody></table>`;
+        break;
+      }
+      case 'archived': {
+        const data = await api.reports.archived();
+        const pBody = data.archived_products.length === 0
+          ? '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No archived products.</td></tr>'
+          : data.archived_products.map(p=>`<tr><td>${p.name}</td><td>v${p.version}</td><td>${new Date(p.created_at).toLocaleDateString()}</td><td><a href="product_form.html?id=${p.id}">View</a></td></tr>`).join('');
+        const bBody = data.archived_boms.length === 0
+          ? '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No archived BOMs.</td></tr>'
+          : data.archived_boms.map(b=>`<tr><td>${b.reference}</td><td>${b.product}</td><td>v${b.version}</td><td>${new Date(b.created_at).toLocaleDateString()}</td></tr>`).join('');
+        document.getElementById('archived-body').innerHTML = `
+          <div style="padding:16px 20px;font-weight:600;border-bottom:1px solid var(--border)">🗂️ Archived Products</div>
+          <table class="data-table"><thead><tr><th>Name</th><th>Version</th><th>Archived</th><th></th></tr></thead><tbody>${pBody}</tbody></table>
+          <div style="padding:16px 20px;font-weight:600;border-bottom:1px solid var(--border);border-top:1px solid var(--border)">🗂️ Archived BOMs</div>
+          <table class="data-table"><thead><tr><th>Reference</th><th>Product</th><th>Version</th><th>Archived</th></tr></thead><tbody>${bBody}</tbody></table>`;
+        break;
+      }
+    }
+  } catch(e) {
+    document.getElementById('err-msg').textContent = e.message;
+    document.getElementById('alert-error').style.display = 'flex';
+  }
+}
+
+// Load first tab immediately
+loadTab('ecos');
+</script>
+</body>
+</html>

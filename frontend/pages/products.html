@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — Products</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right">
+    <span id="role-badge" class="badge badge-info"></span>
+    <div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div>
+  </div>
+</header>
+<nav class="sidebar">
+  <div class="sidebar__section">Main Menu</div>
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link active"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <div class="sidebar__section">Insights</div>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+  <a href="settings.html" class="sidebar__link" id="settings-link" style="display:none"><span class="sidebar__link-icon">⚙️</span> Settings</a>
+</nav>
+<main class="main">
+  <div class="page-header">
+    <div><h1 class="page-title">Products</h1><p class="page-subtitle">Master product records</p></div>
+    <button class="btn btn-primary" id="btn-new" onclick="location.href='product_form.html'">+ New Product</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Search by product name…">
+  </div>
+  <div class="table-wrap">
+    <div id="table-body"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+
+const role = getCurrentRole();
+document.getElementById('role-badge').textContent = role?.toUpperCase();
+if (role === 'admin') document.getElementById('settings-link').style.display = 'flex';
+if (role === 'operations') document.getElementById('btn-new').style.display = 'none';
+
+async function load(search = '') {
+  document.getElementById('table-body').innerHTML = '<div class="loading"><span class="spinner"></span> Loading…</div>';
+  try {
+    const data = await api.products.list(search);
+    if (data.length === 0) {
+      document.getElementById('table-body').innerHTML = '<div class="empty-state"><div class="empty-state__icon">📦</div><div class="empty-state__text">No products found.</div></div>';
+      return;
+    }
+    document.getElementById('table-body').innerHTML = `<table class="data-table">
+      <thead><tr><th>Product Name</th><th>Version</th><th>Status</th></tr></thead>
+      <tbody>${data.map(p=>`<tr onclick="location.href='product_form.html?id=${p.id}'">
+        <td>${p.name}</td>
+        <td><span class="pill pill-white">v${p.version}</span></td>
+        <td><span class="badge ${p.status==='active'?'badge-success':'badge-danger'}">${p.status}</span></td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch (e) {
+    document.getElementById('table-body').innerHTML = `<div class="alert alert-error" style="margin:16px">${e.message}</div>`;
+  }
+}
+
+let debounce;
+document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(debounce);
+  debounce = setTimeout(() => load(e.target.value), 300);
+});
+
+load();
+</script>
+</body>
+</html>

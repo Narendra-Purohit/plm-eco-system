@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLM — Create Account</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-card__logo">
+      <div class="auth-card__logo-icon">👤</div>
+      <h1 class="auth-card__title">Create Account</h1>
+      <p class="auth-card__subtitle">Join the PLM system</p>
+    </div>
+
+    <div id="alert-global" class="alert alert-error" style="display:none">
+      <span>❌</span> <span id="global-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Login ID <span class="required">*</span></label>
+      <input class="form-control" id="input-login-id" type="text" placeholder="6–12 characters" maxlength="12" />
+      <span class="field-error" id="err-login-id"></span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email <span class="required">*</span></label>
+      <input class="form-control" id="input-email" type="email" placeholder="you@company.com" />
+      <span class="field-error" id="err-email"></span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <select class="form-control" id="input-role">
+        <option value="engineering">Engineering</option>
+        <option value="approver">Approver</option>
+        <option value="operations">Operations</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password <span class="required">*</span></label>
+      <input class="form-control" id="input-password" type="password" placeholder="Min 8 chars, 1 upper, 1 lower, 1 special" />
+      <span class="field-error" id="err-password"></span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Confirm Password <span class="required">*</span></label>
+      <input class="form-control" id="input-confirm-password" type="password" placeholder="Repeat password" />
+      <span class="field-error" id="err-confirm"></span>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="btn-signup">
+      <span id="btn-text">Create Account</span>
+      <span id="btn-spinner" class="spinner" style="display:none"></span>
+    </button>
+
+    <div style="text-align:center; margin-top:16px; font-size:13px; color:var(--text-muted)">
+      Already have an account? <a href="login.html">Sign In</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { api } from '../static/js/api.js';
+
+function setErr(id, msg) { document.getElementById(id).textContent = msg; }
+function clearErrs() { ['err-login-id','err-email','err-password','err-confirm'].forEach(id => setErr(id,'')); }
+
+function validatePassword(p) {
+  if (p.length < 8) return 'Min 8 characters required.';
+  if (!/[A-Z]/.test(p)) return 'At least 1 uppercase letter required.';
+  if (!/[a-z]/.test(p)) return 'At least 1 lowercase letter required.';
+  if (!/[^A-Za-z0-9]/.test(p)) return 'At least 1 special character required.';
+  return '';
+}
+
+document.getElementById('input-login-id').addEventListener('input', e => {
+  const v = e.target.value;
+  setErr('err-login-id', v.length < 6 ? 'Min 6 characters.' : v.length > 12 ? 'Max 12 characters.' : '');
+});
+
+document.getElementById('input-password').addEventListener('input', e => {
+  setErr('err-password', validatePassword(e.target.value));
+});
+
+document.getElementById('input-confirm-password').addEventListener('input', e => {
+  const pw = document.getElementById('input-password').value;
+  setErr('err-confirm', e.target.value !== pw ? 'Passwords do not match.' : '');
+});
+
+document.getElementById('btn-signup').addEventListener('click', async () => {
+  clearErrs();
+  const loginId  = document.getElementById('input-login-id').value.trim();
+  const email    = document.getElementById('input-email').value.trim();
+  const role     = document.getElementById('input-role').value;
+  const password = document.getElementById('input-password').value;
+  const confirm  = document.getElementById('input-confirm-password').value;
+  let valid = true;
+
+  if (loginId.length < 6 || loginId.length > 12) { setErr('err-login-id', 'Login ID must be 6–12 characters.'); valid = false; }
+  if (!email.includes('@')) { setErr('err-email', 'Enter a valid email.'); valid = false; }
+  const pwErr = validatePassword(password);
+  if (pwErr) { setErr('err-password', pwErr); valid = false; }
+  if (password !== confirm) { setErr('err-confirm', 'Passwords do not match.'); valid = false; }
+  if (!valid) return;
+
+  document.getElementById('btn-spinner').style.display = 'inline-block';
+  document.getElementById('btn-text').textContent = 'Creating…';
+  document.getElementById('btn-signup').disabled = true;
+
+  try {
+    await api.auth.signup({ login_id: loginId, email, password, confirm_password: confirm, role });
+    window.location.href = 'login.html?registered=1';
+  } catch (e) {
+    document.getElementById('global-error').textContent = e.message;
+    document.getElementById('alert-global').style.display = 'flex';
+  } finally {
+    document.getElementById('btn-spinner').style.display = 'none';
+    document.getElementById('btn-text').textContent = 'Create Account';
+    document.getElementById('btn-signup').disabled = false;
+  }
+});
+</script>
+</body>
+</html>

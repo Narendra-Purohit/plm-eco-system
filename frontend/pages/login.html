@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLM — Sign In</title>
+<link rel="stylesheet" href="../static/css/main.css">
+<style>
+.auth-links { display: flex; justify-content: space-between; margin-top: 16px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-card__logo">
+      <div class="auth-card__logo-icon">⚙️</div>
+      <h1 class="auth-card__title">PLM System</h1>
+      <p class="auth-card__subtitle">Engineering Changes, Executed with Control</p>
+    </div>
+
+    <div id="alert-error" class="alert alert-error" style="display:none">
+      <span>❌</span> <span id="error-message">Invalid Login Id or Password</span>
+    </div>
+    <div id="alert-success" class="alert alert-success" style="display:none">
+      <span>✅</span> Account created successfully! Please sign in.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Login ID <span class="required">*</span></label>
+      <input class="form-control" id="input-login-id" type="text" placeholder="Enter your login ID" autocomplete="username" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password <span class="required">*</span></label>
+      <input class="form-control" id="input-password" type="password" placeholder="Enter your password" autocomplete="current-password" />
+    </div>
+
+    <button class="btn btn-primary btn-full" id="btn-signin">
+      <span id="btn-signin-text">Sign In</span>
+      <span id="btn-signin-spinner" class="spinner" style="display:none"></span>
+    </button>
+
+    <div class="auth-links">
+      <a href="#" onclick="alert('Contact your admin to reset password.')">Forgot Password?</a>
+      <a href="signup.html">Create Account</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { api, isLoggedIn } from '../static/js/api.js';
+
+// Redirect if already logged in
+if (isLoggedIn()) window.location.href = 'dashboard.html';
+
+// Show success banner if coming from signup
+if (new URLSearchParams(location.search).get('registered')) {
+  document.getElementById('alert-success').style.display = 'flex';
+}
+
+document.getElementById('btn-signin').addEventListener('click', async () => {
+  const loginId  = document.getElementById('input-login-id').value.trim();
+  const password = document.getElementById('input-password').value;
+  const errDiv   = document.getElementById('alert-error');
+  const spinner  = document.getElementById('btn-signin-spinner');
+  const btnText  = document.getElementById('btn-signin-text');
+
+  errDiv.style.display = 'none';
+  if (!loginId || !password) {
+    document.getElementById('error-message').textContent = 'Please fill in all fields.';
+    errDiv.style.display = 'flex'; return;
+  }
+
+  spinner.style.display = 'inline-block'; btnText.textContent = 'Signing in…';
+  document.getElementById('btn-signin').disabled = true;
+
+  try {
+    const data = await api.auth.login(loginId, password);
+    localStorage.setItem('access_token', data.access);
+    localStorage.setItem('refresh_token', data.refresh);
+    // Decode payload for role/user_id
+    const payload = JSON.parse(atob(data.access.split('.')[1]));
+    localStorage.setItem('role', payload.role);
+    localStorage.setItem('user_id', payload.user_id);
+    localStorage.setItem('login_id', payload.login_id);
+    window.location.href = 'dashboard.html';
+  } catch (e) {
+    document.getElementById('error-message').textContent = 'Invalid Login Id or Password';
+    errDiv.style.display = 'flex';
+  } finally {
+    spinner.style.display = 'none'; btnText.textContent = 'Sign In';
+    document.getElementById('btn-signin').disabled = false;
+  }
+});
+
+// Enter key submits
+document.getElementById('input-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-signin').click();
+});
+</script>
+</body>
+</html>

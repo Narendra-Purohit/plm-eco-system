@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — ECOs</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
+</header>
+<nav class="sidebar">
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link active"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+</nav>
+<main class="main">
+  <div class="page-header">
+    <div><h1 class="page-title">Engineering Change Orders</h1></div>
+    <button class="btn btn-primary" id="btn-new" onclick="location.href='eco_form.html'">+ New ECO</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Search ECOs…">
+  </div>
+  <div class="table-wrap">
+    <div id="table-body"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+  </div>
+</main>
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+const role = getCurrentRole();
+if (role === 'operations' || role === 'approver') document.getElementById('btn-new').style.display = 'none';
+
+const statusBadge = s => s==='applied'?'badge-success':s==='active'?'badge-info':'badge-warning';
+
+async function load(search = '') {
+  document.getElementById('table-body').innerHTML = '<div class="loading"><span class="spinner"></span> Loading…</div>';
+  try {
+    let data = await api.ecos.list();
+    if (search) data = data.filter(e => e.title.toLowerCase().includes(search.toLowerCase()) || e.product_name?.toLowerCase().includes(search.toLowerCase()));
+    if (!data.length) {
+      document.getElementById('table-body').innerHTML = '<div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No ECOs found.</div></div>';
+      return;
+    }
+    document.getElementById('table-body').innerHTML = `<table class="data-table"><thead><tr>
+      <th>Title</th><th>ECO Type</th><th>Product</th><th>Stage</th><th>Status</th><th>Created</th>
+    </tr></thead><tbody>${data.map(e=>`<tr onclick="location.href='eco_form.html?id=${e.id}'">
+      <td><b>${e.title}</b></td>
+      <td>${e.eco_type === 'bom' ? '🔧 BOM' : '📦 Product'}</td>
+      <td>${e.product_name||'—'}</td>
+      <td><span class="pill ${e.status==='applied'?'pill-green':'pill-white'}">${e.stage_name||'—'}</span></td>
+      <td><span class="badge ${statusBadge(e.status)}">${e.status}</span></td>
+      <td>${new Date(e.created_at).toLocaleDateString()}</td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch(e) {
+    document.getElementById('table-body').innerHTML = `<div class="alert alert-error" style="margin:16px">${e.message}</div>`;
+  }
+}
+let debounce;
+document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(debounce); debounce = setTimeout(() => load(e.target.value), 300);
+});
+load();
+</script>
+</body>
+</html>

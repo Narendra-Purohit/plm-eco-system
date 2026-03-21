@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — ECO Form</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
+</header>
+<nav class="sidebar">
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link active"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+</nav>
+<main class="main">
+  <div class="page-header">
+    <div><h1 class="page-title" id="page-title">New ECO</h1><p class="page-subtitle" id="page-subtitle">Engineering Change Order</p></div>
+    <div style="display:flex;gap:8px" id="action-buttons">
+      <button class="btn btn-ghost" onclick="location.href='ecos.html'">← Back</button>
+      <button class="btn btn-primary" id="btn-save">Save</button>
+      <button class="btn btn-success" id="btn-start" style="display:none">▶ Start ECO</button>
+      <button class="btn btn-secondary" id="btn-validate" style="display:none">⏩ Validate</button>
+      <button class="btn btn-primary" id="btn-approve" style="display:none">✅ Approve</button>
+      <button class="btn btn-danger btn-sm" id="btn-reject" style="display:none">✗ Reject</button>
+      <button class="btn btn-ghost" id="btn-open-product" style="display:none">📦 Open Product</button>
+      <button class="btn btn-ghost" id="btn-open-bom" style="display:none">🔧 Open BOM</button>
+      <button class="btn btn-ghost" id="btn-view-diff" style="display:none">🔍 Changes</button>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="alert-msg"></span></div>
+  <div id="alert-success" class="alert alert-success" style="display:none"><span>✅</span> <span id="alert-ok-msg"></span></div>
+
+  <!-- Stage pills -->
+  <div class="stage-pills-row" id="stage-pills-row"></div>
+
+  <!-- ECO Header Form -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">ECO Title <span class="required">*</span></label>
+        <input class="form-control" id="field-title" maxlength="255" placeholder="Describe the change…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ECO Type <span class="required">*</span></label>
+        <select class="form-control" id="field-eco-type">
+          <option value="product">📦 Product</option>
+          <option value="bom">🔧 Bill of Materials</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Responsible User</label>
+        <select class="form-control" id="field-user"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Product <span class="required">*</span></label>
+        <select class="form-control" id="field-product"><option value="">Select product…</option></select>
+      </div>
+      <div class="form-group" id="bom-group" style="display:none">
+        <label class="form-label">BOM <span class="required">*</span></label>
+        <select class="form-control" id="field-bom"><option value="">Select BOM…</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Version Update?</label>
+        <select class="form-control" id="field-version-update">
+          <option value="true">Yes — create new version</option>
+          <option value="false">No — update in place</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-effective-date">
+        <label class="form-label">Effective Date</label>
+        <input class="form-control" id="field-effective-date" readonly placeholder="Set when ECO is applied">
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, getCurrentUserId, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+
+const role   = getCurrentRole();
+const userId = getCurrentUserId();
+const ecoId  = new URLSearchParams(location.search).get('id');
+let allStages = [];
+let ecoData   = null;
+
+function showError(msg)   { document.getElementById('alert-msg').textContent=msg; document.getElementById('alert-error').style.display='flex'; document.getElementById('alert-success').style.display='none'; }
+function showSuccess(msg) { document.getElementById('alert-ok-msg').textContent=msg; document.getElementById('alert-success').style.display='flex'; document.getElementById('alert-error').style.display='none'; }
+
+function lockAllFields() {
+  document.querySelectorAll('#field-title,#field-eco-type,#field-user,#field-product,#field-bom,#field-version-update').forEach(el => el.disabled = true);
+  document.getElementById('btn-save').style.display = 'none';
+}
+
+function renderStagePills(eco) {
+  if (!allStages.length) return;
+  const currentSeq = eco.stage_sequence || eco.stage;
+  const row = document.getElementById('stage-pills-row');
+  row.innerHTML = allStages.map((s, i) => {
+    let cls, arrow = '';
+    if (s.sequence < currentSeq) cls = 'stage-pill--done';
+    else if (s.sequence === currentSeq) cls = 'stage-pill--current';
+    else cls = 'stage-pill--future';
+    if (i < allStages.length - 1) arrow = '<span class="stage-arrow">›</span>';
+    return `<div class="stage-pill-item"><span class="stage-pill ${cls}">${s.name}</span>${arrow}</div>`;
+  }).join('');
+}
+
+function applyStateUI(eco) {
+  ecoData = eco;
+  document.getElementById('page-title').textContent = eco.title;
+  document.getElementById('page-subtitle').textContent = `${eco.eco_type.toUpperCase()} · ${eco.status.toUpperCase()}`;
+
+  document.getElementById('field-title').value           = eco.title;
+  document.getElementById('field-eco-type').value        = eco.eco_type;
+  document.getElementById('field-product').value         = eco.product;
+  document.getElementById('field-version-update').value  = eco.version_update ? 'true' : 'false';
+  document.getElementById('field-user').value            = eco.user;
+  if (eco.bom) {
+    document.getElementById('bom-group').style.display = 'block';
+    document.getElementById('field-bom').value = eco.bom;
+  }
+  if (eco.effective_date) {
+    document.getElementById('field-effective-date').value = new Date(eco.effective_date).toLocaleString();
+  }
+
+  renderStagePills(eco);
+
+  const isDraft   = eco.status === 'draft';
+  const isActive  = eco.status === 'active';
+  const isApplied = eco.status === 'applied';
+
+  document.getElementById('btn-save').style.display     = isDraft && (role==='engineering'||role==='admin') ? 'inline-flex' : 'none';
+  document.getElementById('btn-start').style.display    = isDraft && (role==='engineering'||role==='admin') ? 'inline-flex' : 'none';
+  document.getElementById('btn-validate').style.display = isActive && (role==='engineering'||role==='admin') ? 'inline-flex' : 'none';
+  document.getElementById('btn-approve').style.display  = isActive && (role==='approver'||role==='admin') ? 'inline-flex' : 'none';
+  document.getElementById('btn-reject').style.display   = isActive && (role==='approver'||role==='admin') ? 'inline-flex' : 'none';
+
+  // Lock fields after start
+  if (!isDraft) lockAllFields();
+
+  // Show linked record buttons when active
+  if (isActive) {
+    if (eco.eco_type === 'product') document.getElementById('btn-open-product').style.display = 'inline-flex';
+    if (eco.eco_type === 'bom')     document.getElementById('btn-open-bom').style.display = 'inline-flex';
+  }
+  if (eco.proposed_changes?.length) {
+    document.getElementById('btn-view-diff').style.display = 'inline-flex';
+  }
+
+  if (isApplied) {
+    document.getElementById('page-subtitle').innerHTML += ' <span class="badge badge-success">✅ ECO Applied</span>';
+  }
+}
+
+// Populate BOM dropdown when product changes
+async function onProductChange() {
+  const productId = document.getElementById('field-product').value;
+  const ecoType   = document.getElementById('field-eco-type').value;
+  document.getElementById('bom-group').style.display = ecoType === 'bom' ? 'block' : 'none';
+  if (ecoType === 'bom' && productId) {
+    const boms = await api.boms.list();
+    const filtered = boms.filter(b => b.product_id == productId && b.status === 'active');
+    document.getElementById('field-bom').innerHTML =
+      '<option value="">Select BOM…</option>' + filtered.map(b=>`<option value="${b.id}">${b.reference}</option>`).join('');
+  }
+}
+
+document.getElementById('field-eco-type').addEventListener('change', onProductChange);
+document.getElementById('field-product').addEventListener('change', onProductChange);
+
+// Button handlers
+document.getElementById('btn-open-product').addEventListener('click', () => {
+  window.open(`product_form.html?id=${ecoData.product}`, '_blank');
+});
+document.getElementById('btn-open-bom').addEventListener('click', () => {
+  window.open(`bom_form.html?id=${ecoData.bom}`, '_blank');
+});
+document.getElementById('btn-view-diff').addEventListener('click', () => {
+  window.open(`eco_diff.html?id=${ecoData.id}`, '_blank');
+});
+
+document.getElementById('btn-save').addEventListener('click', async () => {
+  const title            = document.getElementById('field-title').value.trim();
+  const eco_type         = document.getElementById('field-eco-type').value;
+  const product          = +document.getElementById('field-product').value;
+  const user             = +document.getElementById('field-user').value;
+  const version_update   = document.getElementById('field-version-update').value === 'true';
+  const bom_el           = document.getElementById('field-bom').value;
+  const bom              = bom_el ? +bom_el : null;
+  if (!title || !eco_type || !product) { showError('Title, Type, and Product are required.'); return; }
+  if (eco_type === 'bom' && !bom) { showError('BOM is required for BOM-type ECOs.'); return; }
+
+  document.getElementById('btn-save').disabled = true;
+  try {
+    const payload = { title, eco_type, product, user, version_update };
+    if (bom) payload.bom = bom;
+    const eco = ecoId
+      ? await api.ecos.update(ecoId, payload)
+      : await api.ecos.create(payload);
+    if (!ecoId) { window.location.href = `eco_form.html?id=${eco.id}`; return; }
+    applyStateUI(eco);
+    showSuccess('ECO saved.');
+  } catch(e) {
+    showError(e.message);
+  } finally {
+    document.getElementById('btn-save').disabled = false;
+  }
+});
+
+document.getElementById('btn-start').addEventListener('click', async () => {
+  if (!confirm('Start this ECO? Fields will be locked for editing.')) return;
+  try {
+    const eco = await api.ecos.start(ecoId);
+    applyStateUI(eco);
+    showSuccess('ECO started. Fields are now locked. Record your proposed changes.');
+  } catch(e) { showError(e.message); }
+});
+
+document.getElementById('btn-validate').addEventListener('click', async () => {
+  try {
+    const eco = await api.ecos.validate(ecoId);
+    applyStateUI(eco);
+    showSuccess(`Stage advanced to: ${eco.stage_name}`);
+  } catch(e) { showError(e.message); }
+});
+
+document.getElementById('btn-approve').addEventListener('click', async () => {
+  try {
+    const eco = await api.ecos.approve(ecoId);
+    applyStateUI(eco);
+    showSuccess('Approved successfully.');
+  } catch(e) { showError(e.message); }
+});
+
+document.getElementById('btn-reject').addEventListener('click', async () => {
+  const reason = prompt('Reason for rejection:');
+  if (!reason) return;
+  try {
+    await api.ecos.reject(ecoId, reason);
+    showSuccess('ECO rejected and recorded.');
+  } catch(e) { showError(e.message); }
+});
+
+// Init
+async function init() {
+  // Load stages
+  try {
+    allStages = await api.settings.stages.list();
+  } catch { /* may fail for non-admin — fetch non-admin friendly version later */ }
+
+  // User dropdown
+  const users = await api.auth.users();
+  document.getElementById('field-user').innerHTML = users.map(u=>`<option value="${u.id}">${u.login_id} (${u.role})</option>`).join('');
+  document.getElementById('field-user').value = userId;
+
+  // Product dropdown
+  const products = await api.products.list('', 'active');
+  document.getElementById('field-product').innerHTML =
+    '<option value="">Select product…</option>' + products.map(p=>`<option value="${p.id}">${p.name} (v${p.version})</option>`).join('');
+
+  if (ecoId) {
+    const eco = await api.ecos.get(ecoId);
+    applyStateUI(eco);
+    document.getElementById('btn-start').style.display =
+      eco.status === 'draft' && (role==='engineering'||role==='admin') ? 'inline-flex' : 'none';
+    await onProductChange();
+    if (eco.bom) document.getElementById('field-bom').value = eco.bom;
+  }
+}
+
+init().catch(e => showError(e.message));
+</script>
+</body>
+</html>

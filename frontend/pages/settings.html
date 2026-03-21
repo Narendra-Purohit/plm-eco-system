@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — Settings</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right"><div class="topbar__user" onclick="if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}">👤</div></div>
+</header>
+<nav class="sidebar">
+  <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+  <a href="settings.html" class="sidebar__link active"><span class="sidebar__link-icon">⚙️</span> Settings</a>
+</nav>
+<main class="main">
+  <div class="page-header">
+    <div><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">ECO Stages and Approval Rules (Admin only)</p></div>
+  </div>
+  <div id="alert-error" class="alert alert-error" style="display:none"><span>❌</span> <span id="err-msg"></span></div>
+  <div id="alert-success" class="alert alert-success" style="display:none"><span>✅</span> <span id="ok-msg"></span></div>
+
+  <!-- ECO Stages -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="flex justify-between items-center" style="margin-bottom:16px">
+      <h2 style="font-size:16px;font-weight:700">📊 ECO Stages</h2>
+      <button class="btn btn-primary btn-sm" id="btn-add-stage">+ Add Stage</button>
+    </div>
+    <div id="stages-body"><div class="loading"><span class="spinner"></span></div></div>
+  </div>
+
+  <!-- Approval Rules -->
+  <div class="card">
+    <div class="flex justify-between items-center" style="margin-bottom:16px">
+      <h2 style="font-size:16px;font-weight:700">👤 Approval Rules</h2>
+      <button class="btn btn-primary btn-sm" id="btn-add-approval">+ Add Rule</button>
+    </div>
+    <div id="approvals-body"><div class="loading"><span class="spinner"></span></div></div>
+  </div>
+
+  <!-- Add Stage Modal area (inline) -->
+  <div id="add-stage-form" class="card card-sm" style="margin-top:16px;display:none">
+    <h3 style="margin-bottom:12px;font-size:14px;font-weight:600">New Stage</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
+      <div class="form-group" style="margin:0"><label class="form-label">Name</label><input class="form-control" id="new-stage-name"></div>
+      <div class="form-group" style="margin:0"><label class="form-label">Sequence</label><input class="form-control" id="new-stage-seq" type="number"></div>
+      <div class="form-group" style="margin:0"><label class="form-label">Is New?</label><select class="form-control" id="new-stage-new"><option value="false">No</option><option value="true">Yes</option></select></div>
+      <div class="form-group" style="margin:0"><label class="form-label">Is Done?</label><select class="form-control" id="new-stage-done"><option value="false">No</option><option value="true">Yes</option></select></div>
+      <button class="btn btn-success btn-sm" id="btn-save-stage">Save</button>
+    </div>
+  </div>
+
+  <!-- Add Approval Rule inline -->
+  <div id="add-approval-form" class="card card-sm" style="margin-top:16px;display:none">
+    <h3 style="margin-bottom:12px;font-size:14px;font-weight:600">New Approval Rule</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end">
+      <div class="form-group" style="margin:0"><label class="form-label">Stage</label><select class="form-control" id="new-rule-stage"><option value="">Select…</option></select></div>
+      <div class="form-group" style="margin:0"><label class="form-label">User</label><select class="form-control" id="new-rule-user"><option value="">Select…</option></select></div>
+      <div class="form-group" style="margin:0"><label class="form-label">Category</label><select class="form-control" id="new-rule-cat"><option value="required">Required</option><option value="optional">Optional</option></select></div>
+      <button class="btn btn-success btn-sm" id="btn-save-approval">Save</button>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+if (getCurrentRole() !== 'admin') { alert('Admin access required.'); window.location.href = 'dashboard.html'; }
+
+function showError(msg)   { document.getElementById('err-msg').textContent=msg; document.getElementById('alert-error').style.display='flex'; }
+function showSuccess(msg) { document.getElementById('ok-msg').textContent=msg; document.getElementById('alert-success').style.display='flex'; setTimeout(()=>document.getElementById('alert-success').style.display='none',3000); }
+
+async function loadStages() {
+  const stages = await api.settings.stages.list();
+  const tbody = document.getElementById('stages-body');
+  tbody.innerHTML = `<table class="data-table"><thead><tr><th>Sequence</th><th>Name</th><th>Flags</th><th>Actions</th></tr></thead>
+    <tbody>${stages.map(s=>`<tr>
+      <td>${s.sequence}</td><td><b>${s.name}</b></td>
+      <td>${s.is_default_new?'<span class="badge badge-info">New</span>':''}${s.is_default_done?'<span class="badge badge-success">Done</span>':''}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteStage(${s.id})" ${s.is_default_new||s.is_default_done?'disabled':''>🗑️ Delete</button></td>
+    </tr>`).join('')}</tbody></table>`;
+  // Populate stage dropdown for approval rules
+  document.getElementById('new-rule-stage').innerHTML =
+    '<option value="">Select…</option>' + stages.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+async function loadApprovals() {
+  const rules = await api.settings.approvals.list();
+  const tbody = document.getElementById('approvals-body');
+  if (!rules.length) {
+    tbody.innerHTML = '<div class="empty-state"><div class="empty-state__icon">👤</div><div class="empty-state__text">No approval rules configured.</div></div>';
+    return;
+  }
+  tbody.innerHTML = `<table class="data-table"><thead><tr><th>Stage</th><th>User</th><th>Category</th><th>Actions</th></tr></thead>
+    <tbody>${rules.map(r=>`<tr>
+      <td>${r.stage_name}</td><td>${r.user_name}</td>
+      <td><span class="badge ${r.category==='required'?'badge-info':'badge-warning'}">${r.category}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteApproval(${r.id})">🗑️ Delete</button></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+window.deleteStage = async (id) => {
+  if (!confirm('Delete this stage?')) return;
+  try { await api.settings.stages.delete(id); await loadStages(); showSuccess('Stage deleted.'); }
+  catch(e) { showError(e.message); }
+};
+
+window.deleteApproval = async (id) => {
+  if (!confirm('Delete this rule?')) return;
+  try { await api.settings.approvals.delete(id); await loadApprovals(); showSuccess('Rule deleted.'); }
+  catch(e) { showError(e.message); }
+};
+
+document.getElementById('btn-add-stage').addEventListener('click', () => {
+  const f = document.getElementById('add-stage-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('btn-save-stage').addEventListener('click', async () => {
+  const name = document.getElementById('new-stage-name').value.trim();
+  const seq  = +document.getElementById('new-stage-seq').value;
+  const isNew  = document.getElementById('new-stage-new').value === 'true';
+  const isDone = document.getElementById('new-stage-done').value === 'true';
+  if (!name || !seq) { showError('Name and sequence are required.'); return; }
+  try {
+    await api.settings.stages.create({ name, sequence: seq, is_default_new: isNew, is_default_done: isDone });
+    await loadStages(); document.getElementById('add-stage-form').style.display = 'none'; showSuccess('Stage created.');
+  } catch(e) { showError(e.message); }
+});
+
+document.getElementById('btn-add-approval').addEventListener('click', async () => {
+  const f = document.getElementById('add-approval-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  // Load users into dropdown
+  const users = await api.auth.users();
+  document.getElementById('new-rule-user').innerHTML =
+    '<option value="">Select…</option>' + users.map(u=>`<option value="${u.id}">${u.login_id} (${u.role})</option>`).join('');
+});
+
+document.getElementById('btn-save-approval').addEventListener('click', async () => {
+  const stage    = +document.getElementById('new-rule-stage').value;
+  const user     = +document.getElementById('new-rule-user').value;
+  const category = document.getElementById('new-rule-cat').value;
+  if (!stage || !user) { showError('Stage and user are required.'); return; }
+  try {
+    await api.settings.approvals.create({ stage, user, category });
+    await loadApprovals(); document.getElementById('add-approval-form').style.display = 'none'; showSuccess('Approval rule created.');
+  } catch(e) { showError(e.message); }
+});
+
+loadStages().catch(e => showError(e.message));
+loadApprovals().catch(e => showError(e.message));
+</script>
+</body>
+</html>

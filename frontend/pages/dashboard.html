@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PLM — Dashboard</title>
+<link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar__logo"><div class="topbar__logo-icon">⚙️</div> PLM System</div>
+  <div class="topbar__right">
+    <span id="role-badge" class="badge badge-info"></span>
+    <div class="topbar__user" id="user-icon" title="Logout">👤</div>
+  </div>
+</header>
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar__section">Main Menu</div>
+  <a href="dashboard.html" class="sidebar__link active"><span class="sidebar__link-icon">🏠</span> Dashboard</a>
+  <a href="products.html" class="sidebar__link"><span class="sidebar__link-icon">📦</span> Products</a>
+  <a href="bom.html" class="sidebar__link"><span class="sidebar__link-icon">🔧</span> Bill of Materials</a>
+  <a href="ecos.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> ECOs</a>
+  <div class="sidebar__section">Insights</div>
+  <a href="reports.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Reports</a>
+  <a href="settings.html" class="sidebar__link" id="settings-link" style="display:none"><span class="sidebar__link-icon">⚙️</span> Settings</a>
+</nav>
+<!-- Main Content -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" id="greeting">Welcome</h1>
+      <p class="page-subtitle">Your PLM engineering control centre</p>
+    </div>
+  </div>
+  <!-- Stats -->
+  <div class="stat-grid" id="stat-grid">
+    <div class="stat-card"><div class="stat-card__icon">📦</div><div class="stat-card__label">Active Products</div><div class="stat-card__value" id="stat-products">—</div></div>
+    <div class="stat-card"><div class="stat-card__icon">🔧</div><div class="stat-card__label">Active BOMs</div><div class="stat-card__value" id="stat-boms">—</div></div>
+    <div class="stat-card"><div class="stat-card__icon">📋</div><div class="stat-card__label">Open ECOs</div><div class="stat-card__value" id="stat-ecos">—</div></div>
+    <div class="stat-card"><div class="stat-card__icon">✅</div><div class="stat-card__label">Applied ECOs</div><div class="stat-card__value" id="stat-applied">—</div></div>
+  </div>
+  <!-- Recent ECOs -->
+  <div class="table-wrap">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--border); font-weight:600;">Recent ECOs</div>
+    <div id="recent-ecos-body">
+      <div class="loading"><span class="spinner"></span> Loading…</div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+if (!isLoggedIn()) { window.location.href = 'login.html'; }
+
+const role = getCurrentRole() || localStorage.getItem('role');
+const loginId = localStorage.getItem('login_id');
+
+document.getElementById('greeting').textContent = `Welcome back, ${loginId}`;
+document.getElementById('role-badge').textContent = role?.toUpperCase();
+if (role === 'admin') document.getElementById('settings-link').style.display = 'flex';
+
+document.getElementById('user-icon').addEventListener('click', () => {
+  if (confirm('Sign out?')) { localStorage.clear(); window.location.href = 'login.html'; }
+});
+
+async function loadStats() {
+  try {
+    const [products, boms, ecos] = await Promise.all([
+      api.products.list('', 'active'),
+      api.boms.list(''),
+      api.ecos.list(),
+    ]);
+    document.getElementById('stat-products').textContent = products.length;
+    document.getElementById('stat-boms').textContent = boms.filter(b => b.status === 'active').length;
+    const openEcos = ecos.filter(e => e.status === 'active');
+    const appliedEcos = ecos.filter(e => e.status === 'applied');
+    document.getElementById('stat-ecos').textContent = openEcos.length;
+    document.getElementById('stat-applied').textContent = appliedEcos.length;
+
+    // Recent ECOs table
+    const recent = [...ecos].sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+    const tbody = document.getElementById('recent-ecos-body');
+    if (recent.length === 0) {
+      tbody.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No ECOs yet. Create your first ECO!</div></div>';
+      return;
+    }
+    const statusColor = s => s==='applied'?'success':s==='active'?'info':'warning';
+    tbody.innerHTML = `<table class="data-table"><thead><tr>
+      <th>Title</th><th>Type</th><th>Product</th><th>Stage</th><th>Status</th>
+    </tr></thead><tbody>${recent.map(e=>`<tr onclick="location.href='eco_form.html?id=${e.id}'">
+      <td>${e.title}</td><td>${e.eco_type}</td><td>${e.product_name||'—'}</td>
+      <td><span class="pill pill-white">${e.stage_name||'—'}</span></td>
+      <td><span class="badge badge-${statusColor(e.status)}">${e.status}</span></td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch (e) {
+    document.getElementById('recent-ecos-body').innerHTML = `<div class="alert alert-error" style="margin:16px">${e.message}</div>`;
+  }
+}
+
+loadStats();
+</script>
+</body>
+</html>
