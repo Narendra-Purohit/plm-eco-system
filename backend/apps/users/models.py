@@ -27,7 +27,7 @@ class CustomUser(AbstractBaseUser):
         ('admin', 'Admin'),
     ]
 
-    login_id   = models.CharField(max_length=12, unique=True)
+    login_id   = models.CharField(max_length=20, unique=True)
     email      = models.EmailField(unique=True)
     role       = models.CharField(max_length=20, choices=ROLE_CHOICES, default='engineering')
     is_active  = models.BooleanField(default=True)
