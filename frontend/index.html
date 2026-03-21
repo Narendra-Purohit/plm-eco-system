@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PLM System</title>
+</head>
+<body style="background-color: #121212; color: #ffffff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <div>Loading PLM...</div>
+  <script>
+    if (!localStorage.getItem('access_token')) {
+        window.location.href = "pages/login.html";
+    } else {
+        window.location.href = "pages/dashboard.html";
+    }
+  </script>
+</body>
+</html>
