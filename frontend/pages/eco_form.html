@@ -101,7 +101,7 @@ function lockAllFields() {
 
 function renderStagePills(eco) {
   if (!allStages.length) return;
-  const currentSeq = eco.stage_sequence || eco.stage;
+  const currentSeq = eco.stage_sequence;
   const row = document.getElementById('stage-pills-row');
   row.innerHTML = allStages.map((s, i) => {
     let cls, arrow = '';
@@ -166,7 +166,7 @@ async function onProductChange() {
   const ecoType   = document.getElementById('field-eco-type').value;
   document.getElementById('bom-group').style.display = ecoType === 'bom' ? 'block' : 'none';
   if (ecoType === 'bom' && productId) {
-    const boms = await api.boms.list();
+    const boms = await api.boms.list('');
     const filtered = boms.filter(b => b.product_id == productId && b.status === 'active');
     document.getElementById('field-bom').innerHTML =
       '<option value="">Select BOM…</option>' + filtered.map(b=>`<option value="${b.id}">${b.reference}</option>`).join('');
