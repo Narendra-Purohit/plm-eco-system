@@ -1,6 +1,6 @@
-from django.db import models
-from apps.users.models import CustomUser
-from apps.settings_app.models import ECOStage
+from django.db import models  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
+from apps.settings_app.models import ECOStage  # type: ignore
 
 
 class ApprovalConfig(models.Model):

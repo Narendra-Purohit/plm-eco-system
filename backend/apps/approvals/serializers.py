@@ -1,5 +1,5 @@
-from rest_framework import serializers
-from apps.approvals.models import ApprovalConfig
+from rest_framework import serializers  # type: ignore
+from apps.approvals.models import ApprovalConfig  # type: ignore
 
 
 class ApprovalConfigSerializer(serializers.ModelSerializer):

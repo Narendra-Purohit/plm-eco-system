@@ -1,143 +1,170 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>PLM — ECO Changes</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="../static/css/main.css">
-<script src="../static/js/theme.js"></script>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>PLM — ECO Changes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/main.css">
+  <script src="../static/js/theme.js"></script>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
+
 <body class="bg-body-tertiary">
-<nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
-      <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center" style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
-  <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
-  <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg></div>
-      PLM System
-    </a>
-    <div class="ms-auto">
-      <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle mt-1" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
-    </div>
-  </div>
-</nav>
+  <nav class="navbar navbar-expand-lg border-bottom sticky-top glass-nav">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
+        <div class="ratio ratio-1x1 rounded ds-logo d-flex align-items-center justify-content-center"
+          style="width: 32px;"><svg viewBox="0 0 40 40" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" />
+            <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"
+              stroke-linecap="round" />
+            <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg></div>
+        PLM System
+      </a>
+      <div class="ms-auto">
 
-<main class="container my-5" style="max-width: 900px;">
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div>
-      <h1 class="h3 fw-bold mb-1" id="eco-title">ECO Diff View</h1>
-      <p class="text-secondary small mb-0">Proposed field-level changes</p>
-    </div>
-    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" onclick="window.close()">
-      ✕ Close
-    </button>
-  </div>
-
-  <div id="alert-error" class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle"><span class="fs-5">❌</span> <span id="err-msg"></span></div>
-
-  <div class="card bg-body border-0 shadow-sm overflow-hidden mb-5">
-    <div class="table-responsive" id="diff-wrap">
-      <div class="p-5 text-center">
-        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        <span id="role-badge"
+          class="badge bg-info text-dark rounded-pill px-3 py-2 shadow-sm d-none d-lg-inline-block me-2"></span>
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle mt-1" style="width:36px;height:36px;"
+          title="Toggle Theme">🌙</button>
       </div>
     </div>
-  </div>
+  </nav>
 
-  <!-- Record change button for engineering -->
-  <div id="add-change-section" class="card bg-body border-0 shadow-sm p-4 mt-5" style="display:none">
-    <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2">➕ Record a Proposed Change</h3>
-    <div class="row g-3 align-items-end">
-      <div class="col-md-3">
-        <label class="form-label text-secondary small text-uppercase">Entity</label>
-        <select class="form-select bg-body-tertiary border-0" id="new-entity"><option value="product">Product</option><option value="bom">BOM</option></select>
+  <main class="container my-5" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+      <div>
+        <h1 class="h3 fw-bold mb-1" id="eco-title">ECO Diff View</h1>
+        <p class="text-secondary small mb-0">Proposed field-level changes</p>
       </div>
-      <div class="col-md-3">
-        <label class="form-label text-secondary small text-uppercase">Field Name</label>
-        <input class="form-control bg-body-tertiary border-0" id="new-field" placeholder="e.g. sales_price">
-      </div>
-      <div class="col-md-3">
-        <label class="form-label text-secondary small text-uppercase">Old Value</label>
-        <input class="form-control bg-body-tertiary border-0" id="new-old-val" placeholder="Current value">
-      </div>
-      <div class="col-md-3">
-        <label class="form-label text-secondary small text-uppercase">New Value</label>
-        <input class="form-control bg-body-tertiary border-0" id="new-new-val" placeholder="Proposed value">
-      </div>
-      <div class="col-12 mt-3 text-end">
-        <button class="btn btn-primary btn-sm shadow-sm hover-elevate px-4" id="btn-add-change">+ Record Change</button>
+      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" onclick="window.history.back()">
+        ✕ Close
+      </button>
+    </div>
+
+    <div id="alert-error"
+      class="alert alert-danger d-none align-items-center gap-2 mb-4 shadow-sm border-danger-subtle"><span class="fs-5" style="cursor:pointer;" title="Close" onclick="this.closest('.alert').classList.add('d-none'); this.closest('.alert').classList.remove('d-flex')">❌</span> <span id="err-msg"></span></div>
+
+    <div class="card bg-body border-0 shadow-sm overflow-hidden mb-5">
+      <div class="table-responsive" id="diff-wrap">
+        <div class="p-5 text-center">
+          <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
       </div>
     </div>
-  </div>
-</main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module">
-import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
-if (!isLoggedIn()) { window.location.href = 'login.html'; }
-const role  = getCurrentRole();
-const ecoId = new URLSearchParams(location.search).get('id');
-if (!ecoId) { document.getElementById('err-msg').textContent = 'No ECO ID specified.'; document.getElementById('alert-error').classList.remove('d-none'); document.getElementById('alert-error').classList.add('d-flex'); }
+    <!-- Record change button for engineering -->
+    <div id="add-change-section" class="card bg-body border-0 shadow-sm p-4 mt-5" style="display:none">
+      <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2">➕ Record a Proposed Change</h3>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label text-secondary small text-uppercase">Entity</label>
+          <select class="form-select bg-body-tertiary border-0" id="new-entity">
+            <option value="product">Product</option>
+            <option value="bom">BOM</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label text-secondary small text-uppercase">Field Name</label>
+          <input class="form-control bg-body-tertiary border-0" id="new-field" placeholder="e.g. sales_price">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label text-secondary small text-uppercase">Old Value</label>
+          <input class="form-control bg-body-tertiary border-0" id="new-old-val" placeholder="Current value">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label text-secondary small text-uppercase">New Value</label>
+          <input class="form-control bg-body-tertiary border-0" id="new-new-val" placeholder="Proposed value">
+        </div>
+        <div class="col-12 mt-3 text-end">
+          <button class="btn btn-primary btn-sm shadow-sm hover-elevate px-4" id="btn-add-change">+ Record
+            Change</button>
+        </div>
+      </div>
+    </div>
+  </main>
 
-function isNumeric(v) { return !isNaN(parseFloat(v)) && isFinite(v); }
-function diffClassRow(fieldName, oldV, newV) {
-  if (oldV === newV) return '';
-  if (isNumeric(oldV) && isNumeric(newV)) {
-    return parseFloat(newV) > parseFloat(oldV) ? 'table-success' : 'table-danger';
-  }
-  return 'table-success';
-}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
+    if (!isLoggedIn()) { window.location.href = 'login.html'; }
+    const role = getCurrentRole();
+    if (document.getElementById('dropdown-user-name')) {
+      let p = {};
+      try { p = (typeof getTokenPayload !== 'undefined') ? getTokenPayload() : JSON.parse(atob(sessionStorage.getItem('access_token').split('.')[1])); } catch (e) { }
+      const n = p.name || p.first_name || p.username || sessionStorage.getItem('login_id') || 'User';
+      document.getElementById('dropdown-user-name').textContent = 'User : ' + n;
+      document.getElementById('dropdown-user-role').textContent = 'Role : ' + (role || sessionStorage.getItem('role') || 'Unknown').toUpperCase();
+    }
 
-async function loadDiff() {
-  try {
-    const [eco, diff] = await Promise.all([api.ecos.get(ecoId), api.ecos.diff(ecoId)]);
-    document.getElementById('eco-title').textContent = eco.title;
+    if (document.getElementById('role-badge')) document.getElementById('role-badge').textContent = role?.toUpperCase();
 
-    if (!diff.changes.length) {
-      document.getElementById('diff-wrap').innerHTML = '<div class="empty-state p-5 text-center"><div class="display-3 mb-3 opacity-50">✨</div><h5>No proposed changes recorded yet.</h5></div>';
-    } else {
-      document.getElementById('diff-wrap').innerHTML = `<table class="table table-hover align-middle mb-0">
+    const ecoId = new URLSearchParams(location.search).get('id');
+    if (!ecoId) { document.getElementById('err-msg').textContent = 'No ECO ID specified.'; document.getElementById('alert-error').classList.remove('d-none'); document.getElementById('alert-error').classList.add('d-flex'); }
+
+    function isNumeric(v) { return !isNaN(parseFloat(v)) && isFinite(v); }
+    function diffClassRow(fieldName, oldV, newV) {
+      if (oldV === newV) return '';
+      if (isNumeric(oldV) && isNumeric(newV)) {
+        return parseFloat(newV) > parseFloat(oldV) ? 'table-success' : 'table-danger';
+      }
+      return 'table-success';
+    }
+
+    async function loadDiff() {
+      try {
+        const [eco, diff] = await Promise.all([api.ecos.get(ecoId), api.ecos.diff(ecoId)]);
+        document.getElementById('eco-title').textContent = eco.title;
+
+        if (!diff.changes.length) {
+          document.getElementById('diff-wrap').innerHTML = '<div class="empty-state p-5 text-center"><div class="display-3 mb-3 opacity-50">✨</div><h5>No proposed changes recorded yet.</h5></div>';
+        } else {
+          document.getElementById('diff-wrap').innerHTML = `<table class="table table-hover align-middle mb-0">
         <thead class="table-light border-bottom"><tr><th class="ps-4">Entity</th><th>Field</th><th>Old Value</th><th class="pe-4">New Value</th></tr></thead>
-        <tbody>${diff.changes.map(c=>{
-          const trCls = diffClassRow(c.field_name, c.old_value, c.new_value);
-          return `<tr class="${trCls}">
+        <tbody>${diff.changes.map(c => {
+            const trCls = diffClassRow(c.field_name, c.old_value, c.new_value);
+            return `<tr class="${trCls}">
             <td class="ps-4 fw-medium">${c.entity_type}</td>
             <td><code class="bg-body-secondary px-2 py-1 rounded text-body">${c.field_name}</code></td>
-            <td class="text-danger text-decoration-line-through opacity-75">${c.old_value??'—'}</td>
-            <td class="pe-4 fw-bold text-success">${c.new_value??'—'}</td>
+            <td class="text-danger text-decoration-line-through opacity-75">${c.old_value ?? '—'}</td>
+            <td class="pe-4 fw-bold text-success">${c.new_value ?? '—'}</td>
           </tr>`;
-        }).join('')}</tbody></table>`;
+          }).join('')}</tbody></table>`;
+        }
+
+        if (eco.status === 'active' && (role === 'engineering' || role === 'admin')) {
+          document.getElementById('add-change-section').style.display = 'block';
+        }
+      } catch (e) {
+        document.getElementById('err-msg').textContent = e.message;
+        document.getElementById('alert-error').classList.remove('d-none');
+        document.getElementById('alert-error').classList.add('d-flex');
+        document.getElementById('diff-wrap').innerHTML = '';
+      }
     }
 
-    if (eco.status === 'active' && (role==='engineering'||role==='admin')) {
-      document.getElementById('add-change-section').style.display = 'block';
-    }
-  } catch(e) {
-    document.getElementById('err-msg').textContent = e.message;
-    document.getElementById('alert-error').classList.remove('d-none');
-    document.getElementById('alert-error').classList.add('d-flex');
-    document.getElementById('diff-wrap').innerHTML = '';
-  }
-}
+    document.getElementById('btn-add-change').addEventListener('click', async () => {
+      const entity_type = document.getElementById('new-entity').value;
+      const field_name = document.getElementById('new-field').value.trim();
+      const old_value = document.getElementById('new-old-val').value.trim();
+      const new_value = document.getElementById('new-new-val').value.trim();
+      if (!field_name || !new_value) { alert('Field name and new value are required.'); return; }
+      try {
+        await api.ecos.addChange(ecoId, { entity_type, field_name, old_value, new_value });
+        await loadDiff();
+        document.getElementById('new-field').value = '';
+        document.getElementById('new-old-val').value = '';
+        document.getElementById('new-new-val').value = '';
+      } catch (e) { alert(e.message); }
+    });
 
-document.getElementById('btn-add-change').addEventListener('click', async () => {
-  const entity_type = document.getElementById('new-entity').value;
-  const field_name  = document.getElementById('new-field').value.trim();
-  const old_value   = document.getElementById('new-old-val').value.trim();
-  const new_value   = document.getElementById('new-new-val').value.trim();
-  if (!field_name || !new_value) { alert('Field name and new value are required.'); return; }
-  try {
-    await api.ecos.addChange(ecoId, { entity_type, field_name, old_value, new_value });
-    await loadDiff();
-    document.getElementById('new-field').value = '';
-    document.getElementById('new-old-val').value = '';
-    document.getElementById('new-new-val').value = '';
-  } catch(e) { alert(e.message); }
-});
-
-if (ecoId) loadDiff();
-</script>
+    if (ecoId) loadDiff();
+  </script>
 </body>
+
 </html>

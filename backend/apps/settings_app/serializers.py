@@ -1,7 +1,7 @@
-from rest_framework import serializers
+from rest_framework import serializers  # type: ignore
 from .models import ECOStage
-from apps.approvals.models import ApprovalConfig
-from apps.users.serializers import UserSerializer
+from apps.approvals.models import ApprovalConfig  # type: ignore
+from apps.users.serializers import UserSerializer  # type: ignore
 
 
 class ECOStageSerializer(serializers.ModelSerializer):

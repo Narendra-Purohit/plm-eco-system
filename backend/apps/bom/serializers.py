@@ -1,6 +1,6 @@
-from rest_framework import serializers
+from rest_framework import serializers  # type: ignore
 from .models import BOM, BOMComponent, BOMOperation
-from apps.products.models import Product
+from apps.products.models import Product  # type: ignore
 
 
 class BOMComponentSerializer(serializers.ModelSerializer):
@@ -27,8 +27,8 @@ class BOMSerializer(serializers.ModelSerializer):
         source='product'
     )
     product_name = serializers.CharField(source='product.name', read_only=True)
-    components   = BOMComponentSerializer(many=True, required=False)
-    operations   = BOMOperationSerializer(many=True, required=False)
+    components   = BOMComponentSerializer(many=True, required=False)  # type: ignore[call-arg]
+    operations   = BOMOperationSerializer(many=True, required=False)  # type: ignore[call-arg]
 
     class Meta:
         model = BOM
@@ -46,6 +46,26 @@ class BOMSerializer(serializers.ModelSerializer):
         for o in operations_data:
             BOMOperation.objects.create(bom=bom, **o)
         return bom
+
+    def update(self, instance, validated_data):
+        components_data = validated_data.pop('components', None)
+        operations_data = validated_data.pop('operations', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if components_data is not None:
+            BOMComponent.objects.filter(bom=instance).delete()
+            for c in components_data:
+                BOMComponent.objects.create(bom=instance, **c)
+                
+        if operations_data is not None:
+            BOMOperation.objects.filter(bom=instance).delete()
+            for o in operations_data:
+                BOMOperation.objects.create(bom=instance, **o)
+
+        return instance
 
 
 class BOMListSerializer(serializers.ModelSerializer):

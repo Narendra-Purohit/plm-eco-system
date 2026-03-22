@@ -1,8 +1,8 @@
-from django.test import TestCase
-from rest_framework.test import APIClient
-from apps.users.models import CustomUser
-from apps.products.models import Product
-from apps.settings_app.models import ECOStage
+from django.test import TestCase  # type: ignore
+from rest_framework.test import APIClient  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
+from apps.products.models import Product  # type: ignore
+from apps.settings_app.models import ECOStage  # type: ignore
 
 
 class ECOLifecycleTest(TestCase):

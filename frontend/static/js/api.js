@@ -5,8 +5,8 @@
 
 const BASE = 'http://localhost:8000/api';
 
-function getToken()        { return localStorage.getItem('access_token'); }
-function getRefreshToken() { return localStorage.getItem('refresh_token'); }
+function getToken() { return sessionStorage.getItem('access_token'); }
+function getRefreshToken() { return sessionStorage.getItem('refresh_token'); }
 
 async function refreshAccessToken() {
   const res = await fetch(`${BASE}/auth/refresh/`, {
@@ -15,12 +15,12 @@ async function refreshAccessToken() {
     body: JSON.stringify({ refresh: getRefreshToken() }),
   });
   if (!res.ok) {
-    localStorage.clear();
+    sessionStorage.clear();
     window.location.href = 'login.html';
     throw new Error('Session expired. Please log in again.');
   }
   const data = await res.json();
-  localStorage.setItem('access_token', data.access);
+  sessionStorage.setItem('access_token', data.access);
   return data.access;
 }
 
@@ -35,17 +35,17 @@ async function request(method, path, body = null, isMultipart = false) {
 
     const res = await fetch(`${BASE}${path}`, opts);
 
-    if (res.status === 401) {
+    if (res.status === 401 && path !== '/auth/login/') {
       const newToken = await refreshAccessToken();
       return makeRequest(newToken);
     }
 
     if (!res.ok) {
       let errData = {};
-      try { errData = await res.json(); } catch {}
+      try { errData = await res.json(); } catch { }
       const msg = errData.error || errData.detail ||
-                  Object.values(errData).flat().join(' ') ||
-                  `HTTP ${res.status}`;
+        Object.values(errData).flat().join(' ') ||
+        `HTTP ${res.status}`;
       throw new Error(msg);
     }
 
@@ -81,50 +81,54 @@ export function isLoggedIn() { return !!getToken(); }
 export const api = {
 
   auth: {
-    login:   (login_id, password) =>
+    login: (login_id, password) =>
       request('POST', '/auth/login/', { login_id, password }),
-    signup:  (data) => request('POST', '/auth/signup/', data),
+    signup: (data) => request('POST', '/auth/signup/', data),
     refresh: (refresh) => request('POST', '/auth/refresh/', { refresh }),
-    users:   () => request('GET', '/auth/users/'),
+    users: () => request('GET', '/auth/users/'),
+    updateRole: (id, role) => request('PATCH', `/auth/users/${id}/`, { role }),
+    resetRequest: (email) => request('POST', '/auth/password-reset/', { email }),
+    verifyOTP: (email, otp) => request('POST', '/auth/password-reset-verify/', { email, otp }),
+    resetConfirm: (email, otp, new_password) => request('POST', '/auth/password-reset-confirm/', { email, otp, new_password }),
   },
 
   products: {
-    list:     (search = '', status_filter = '') =>
+    list: (search = '', status_filter = '') =>
       request('GET', `/products/?search=${encodeURIComponent(search)}&status=${status_filter}`),
-    get:      (id) => request('GET', `/products/${id}/`),
-    create:   (formData) => request('POST', '/products/', formData, true),
+    get: (id) => request('GET', `/products/${id}/`),
+    create: (formData) => request('POST', '/products/', formData, true),
     versions: (id) => request('GET', `/products/${id}/versions/`),
   },
 
   boms: {
-    list:   (search = '') =>
+    list: (search = '') =>
       request('GET', `/boms/?search=${encodeURIComponent(search)}`),
-    get:    (id) => request('GET', `/boms/${id}/`),
+    get: (id) => request('GET', `/boms/${id}/`),
     create: (data) => request('POST', '/boms/', data),
   },
 
   ecos: {
-    list:      () => request('GET', '/ecos/'),
-    get:       (id) => request('GET', `/ecos/${id}/`),
-    create:    (data) => request('POST', '/ecos/', data),
-    update:    (id, data) => request('PATCH', `/ecos/${id}/`, data),
-    start:     (id) => request('POST', `/ecos/${id}/start/`),
-    validate:  (id) => request('PATCH', `/ecos/${id}/stage/next/`),
-    approve:   (id) => request('POST', `/ecos/${id}/approve/`),
-    reject:    (id, reason) => request('POST', `/ecos/${id}/reject/`, { reason }),
-    diff:      (id) => request('GET', `/ecos/${id}/diff/`),
+    list: () => request('GET', '/ecos/'),
+    get: (id) => request('GET', `/ecos/${id}/`),
+    create: (data) => request('POST', '/ecos/', data),
+    update: (id, data) => request('PATCH', `/ecos/${id}/`, data),
+    start: (id) => request('POST', `/ecos/${id}/start/`),
+    validate: (id) => request('PATCH', `/ecos/${id}/stage/next/`),
+    approve: (id) => request('POST', `/ecos/${id}/approve/`),
+    reject: (id, reason) => request('POST', `/ecos/${id}/reject/`, { reason }),
+    diff: (id) => request('GET', `/ecos/${id}/diff/`),
     addChange: (id, data) => request('POST', `/ecos/${id}/changes/`, data),
   },
 
   settings: {
     stages: {
-      list:   () => request('GET', '/settings/stages/'),
+      list: () => request('GET', '/settings/stages/'),
       create: (data) => request('POST', '/settings/stages/', data),
       update: (id, data) => request('PUT', `/settings/stages/${id}/`, data),
       delete: (id) => request('DELETE', `/settings/stages/${id}/`),
     },
     approvals: {
-      list:   () => request('GET', '/settings/approvals/'),
+      list: () => request('GET', '/settings/approvals/'),
       create: (data) => request('POST', '/settings/approvals/', data),
       update: (id, data) => request('PUT', `/settings/approvals/${id}/`, data),
       delete: (id) => request('DELETE', `/settings/approvals/${id}/`),
@@ -132,10 +136,10 @@ export const api = {
   },
 
   reports: {
-    ecos:            () => request('GET', '/reports/ecos/'),
+    ecos: () => request('GET', '/reports/ecos/'),
     productVersions: () => request('GET', '/reports/product-versions/'),
-    bomHistory:      () => request('GET', '/reports/bom-history/'),
-    archived:        () => request('GET', '/reports/archived/'),
+    bomHistory: () => request('GET', '/reports/bom-history/'),
+    archived: () => request('GET', '/reports/archived/'),
   },
 
   audit: {

@@ -1,0 +1,22 @@
+{
+    "venvPath": ".",
+    "venv": "env",
+    "pythonVersion": "3.12",
+    "typeCheckingMode": "off",
+    "reportMissingImports": "none",
+    "reportMissingModuleSource": "none",
+    "reportUnusedImports": "none",
+    "reportUnusedVariable": "none",
+    "reportGeneralTypeIssues": "none",
+    "reportAttributeAccessIssue": "none",
+    "reportOptionalMemberAccess": "none",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "extraPaths": [
+                ".",
+                "env/Lib/site-packages"
+            ]
+        }
+    ]
+}

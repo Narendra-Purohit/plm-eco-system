@@ -1,167 +1,237 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PLM — Create Account</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../static/css/main.css">
-<script src="../static/js/theme.js"></script>
-<style>
-  .auth-split-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    min-height: 100dvh;
-  }
-  @media (max-width: 768px) {
-    .auth-split-layout { grid-template-columns: 1fr; }
-    .auth-brand-panel { display: none !important; }
-  }
-  .auth-brand-panel {
-    background: var(--logo-bg);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 3rem;
-  }
-  .auth-brand-panel::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
-  }
-  .brand-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  .brand-content { position: relative; z-index: 2; }
-  .brand-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 999px;
-    padding: 6px 16px;
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.9);
-    letter-spacing: 0.04em;
-    margin-bottom: 2rem;
-  }
-  .brand-badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: #4ade80;
-    border-radius: 50%;
-    animation: pulse-dot 2s infinite;
-  }
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.7); }
-  }
-  .brand-headline {
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    margin-bottom: 1rem;
-  }
-  .brand-sub {
-    color: rgba(255,255,255,0.65);
-    font-size: 1rem;
-    line-height: 1.7;
-    max-width: 380px;
-    margin-bottom: 2.5rem;
-  }
-  .feature-list { list-style: none; padding: 0; margin: 0; }
-  .feature-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: rgba(255,255,255,0.8);
-    font-size: 0.9rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .feature-list li:last-child { border-bottom: none; }
-  .feature-icon {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.12);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.8rem;
-  }
-  .auth-form-panel {
-    background: var(--bg-page);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 3rem 2rem;
-    position: relative;
-    overflow-y: auto;
-  }
-  .auth-form-inner {
-    width: 100%;
-    max-width: 420px;
-    animation: fadeUp 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
-  }
-  @keyframes fadeUp {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  .auth-logo-wrap {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--logo-bg);
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow-logo);
-    margin-bottom: 1.25rem;
-    flex-shrink: 0;
-  }
-  .theme-controls {
-    position: absolute;
-    top: 1.25rem; right: 1.25rem;
-  }
-  .role-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-  }
-  .role-option {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.6rem 0.75rem;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: var(--bg-raised);
-    transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
-    text-align: center;
-  }
-  .role-option:hover { border-color: var(--accent); color: var(--accent); }
-  .role-option input { display: none; }
-  .role-option.selected {
-    border-color: var(--accent);
-    background: var(--accent-glow);
-    color: var(--accent);
-  }
-</style>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLM — Create Account</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/main.css">
+  <script src="../static/js/theme.js"></script>
+  <style>
+    .auth-split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100dvh;
+    }
+
+    @media (max-width: 768px) {
+      .auth-split-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-brand-panel {
+        display: none !important;
+      }
+    }
+
+    .auth-brand-panel {
+      background: var(--logo-bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .auth-brand-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    }
+
+    .brand-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.04em;
+      margin-bottom: 2rem;
+    }
+
+    .brand-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.7);
+      }
+    }
+
+    .brand-headline {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .brand-sub {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 2.5rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+    }
+
+    .auth-form-panel {
+      background: var(--bg-page);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2rem;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .auth-form-inner {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes fadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .auth-logo-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--logo-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-logo);
+      margin-bottom: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .theme-controls {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .role-option {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-raised);
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
+    }
+
+    .role-option:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .role-option input {
+      display: none;
+    }
+
+    .role-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+  </style>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='18' fill='%23155EEF'/><circle cx='20' cy='20' r='9' fill='none' stroke='%23fff' stroke-width='2.5'/><path d='M14 20 A6 6 0 0 1 26 20' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/><polyline points='24,17 26,20 23,21' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
+
 <body style="background: var(--bg-page);">
   <div class="auth-split-layout">
 
@@ -171,12 +241,21 @@
       <div class="brand-content">
         <div class="brand-badge">New to PLM?</div>
         <h1 class="brand-headline">Register &<br>Get Full<br>Access.</h1>
-        <p class="brand-sub">Create your team account and immediately gain access to the full PLM suite designed for engineering teams.</p>
+        <p class="brand-sub">Create your team account and immediately gain access to the full PLM suite designed for
+          engineering teams.</p>
         <ul class="feature-list">
-          <li><div class="feature-icon">📦</div> Manage products and part libraries</li>
-          <li><div class="feature-icon">🔧</div> Author and version Bills of Materials</li>
-          <li><div class="feature-icon">📋</div> Submit and track Engineering Change Orders</li>
-          <li><div class="feature-icon">✅</div> Role-based approval workflows</li>
+          <li>
+            <div class="feature-icon">📦</div> Manage products and part libraries
+          </li>
+          <li>
+            <div class="feature-icon">🔧</div> Author and version Bills of Materials
+          </li>
+          <li>
+            <div class="feature-icon">📋</div> Submit and track Engineering Change Orders
+          </li>
+          <li>
+            <div class="feature-icon">✅</div> Role-based approval workflows
+          </li>
         </ul>
       </div>
     </div>
@@ -184,22 +263,28 @@
     <!-- RIGHT form panel -->
     <div class="auth-form-panel">
       <div class="theme-controls">
-        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;" title="Toggle Theme">🌙</button>
+        <button id="theme-toggle"
+          class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+          style="width:38px;height:38px;" title="Toggle Theme">🌙</button>
       </div>
 
       <div class="auth-form-inner">
         <div class="auth-logo-wrap">
           <svg viewBox="0 0 40 40" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5"/>
-            <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round"/>
-            <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" />
+            <path d="M14 20 A6 6 0 0 1 26 20" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5"
+              stroke-linecap="round" />
+            <polyline points="24,17 26,20 23,21" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
 
         <h2 class="fw-bold mb-1" style="font-size:1.5rem; letter-spacing: -0.02em;">Create account</h2>
-        <p class="mb-4" style="color: var(--text-muted); font-size:0.875rem;">Fill in the details below to get started.</p>
+        <p class="mb-4" style="color: var(--text-muted); font-size:0.875rem;">Fill in the details below to get started.
+        </p>
 
-        <div id="alert-global" class="alert alert-danger d-none align-items-center gap-2 mb-3 py-2 px-3" style="font-size:0.85rem;">
+        <div id="alert-global" class="alert alert-danger d-none align-items-center gap-2 mb-3 py-2 px-3"
+          style="font-size:0.85rem;">
           <span>⚠️</span> <span id="global-error"></span>
         </div>
 
@@ -216,18 +301,9 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">ROLE</label>
-          <div class="role-grid" id="role-grid">
-            <label class="role-option selected"><input type="radio" name="role" value="engineering" checked> Engineering</label>
-            <label class="role-option"><input type="radio" name="role" value="approver"> Approver</label>
-            <label class="role-option"><input type="radio" name="role" value="operations"> Operations</label>
-            <label class="role-option"><input type="radio" name="role" value="admin"> Admin</label>
-          </div>
-        </div>
-
-        <div class="mb-3">
           <label class="form-label">PASSWORD <span class="text-danger">*</span></label>
-          <input class="form-control" id="input-password" type="password" placeholder="Min 8 chars, 1 upper, 1 special" />
+          <input class="form-control" id="input-password" type="password"
+            placeholder="Min 8 chars, 1 upper, 1 special" />
           <div class="text-danger small mt-1" id="err-password"></div>
         </div>
 
@@ -237,86 +313,82 @@
           <div class="text-danger small mt-1" id="err-confirm"></div>
         </div>
 
-        <button class="btn btn-primary w-100 fw-bold d-flex align-items-center justify-content-center gap-2 mb-4" id="btn-signup" style="height:46px; font-size:0.95rem;">
+        <button class="btn btn-primary w-100 fw-bold d-flex align-items-center justify-content-center gap-2 mb-4"
+          id="btn-signup" style="height:46px; font-size:0.95rem;">
           <span id="btn-text">Create Account</span>
           <span id="btn-spinner" class="spinner-border spinner-border-sm" style="display:none"></span>
         </button>
 
         <div class="text-center" style="font-size:0.85rem; color: var(--text-muted);">
           Already have an account?
-          <a href="login.html" style="color: var(--accent); text-decoration:none; font-weight:600; margin-left:4px;">Sign in →</a>
+          <a href="login.html"
+            style="color: var(--accent); text-decoration:none; font-weight:600; margin-left:4px;">Sign in →</a>
         </div>
       </div>
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module">
-import { api } from '../static/js/api.js';
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { api } from '../static/js/api.js';
 
-// Role grid toggle
-document.querySelectorAll('.role-option').forEach(label => {
-  label.addEventListener('click', () => {
-    document.querySelectorAll('.role-option').forEach(l => l.classList.remove('selected'));
-    label.classList.add('selected');
-  });
-});
+    // No role grid handling needed
 
-function setErr(id, msg) { document.getElementById(id).textContent = msg; }
-function clearErrs() { ['err-login-id','err-email','err-password','err-confirm'].forEach(id => setErr(id,'')); }
+    function setErr(id, msg) { document.getElementById(id).textContent = msg; }
+    function clearErrs() { ['err-login-id', 'err-email', 'err-password', 'err-confirm'].forEach(id => setErr(id, '')); }
 
-function validatePassword(p) {
-  if (p.length < 8) return 'Min 8 characters required.';
-  if (!/[A-Z]/.test(p)) return 'At least 1 uppercase letter required.';
-  if (!/[a-z]/.test(p)) return 'At least 1 lowercase letter required.';
-  if (!/[^A-Za-z0-9]/.test(p)) return 'At least 1 special character required.';
-  return '';
-}
+    function validatePassword(p) {
+      if (p.length < 8) return 'Min 8 characters required.';
+      if (!/[A-Z]/.test(p)) return 'At least 1 uppercase letter required.';
+      if (!/[a-z]/.test(p)) return 'At least 1 lowercase letter required.';
+      if (!/[^A-Za-z0-9]/.test(p)) return 'At least 1 special character required.';
+      return '';
+    }
 
-document.getElementById('input-login-id').addEventListener('input', e => {
-  const v = e.target.value;
-  setErr('err-login-id', v.length < 6 ? 'Min 6 characters.' : v.length > 12 ? 'Max 12 characters.' : '');
-});
-document.getElementById('input-password').addEventListener('input', e => {
-  setErr('err-password', validatePassword(e.target.value));
-});
-document.getElementById('input-confirm-password').addEventListener('input', e => {
-  setErr('err-confirm', e.target.value !== document.getElementById('input-password').value ? 'Passwords do not match.' : '');
-});
+    document.getElementById('input-login-id').addEventListener('input', e => {
+      const v = e.target.value;
+      setErr('err-login-id', v.length < 6 ? 'Min 6 characters.' : v.length > 12 ? 'Max 12 characters.' : '');
+    });
+    document.getElementById('input-password').addEventListener('input', e => {
+      setErr('err-password', validatePassword(e.target.value));
+    });
+    document.getElementById('input-confirm-password').addEventListener('input', e => {
+      setErr('err-confirm', e.target.value !== document.getElementById('input-password').value ? 'Passwords do not match.' : '');
+    });
 
-document.getElementById('btn-signup').addEventListener('click', async () => {
-  clearErrs();
-  const loginId  = document.getElementById('input-login-id').value.trim();
-  const email    = document.getElementById('input-email').value.trim();
-  const role     = document.querySelector('input[name="role"]:checked').value;
-  const password = document.getElementById('input-password').value;
-  const confirm  = document.getElementById('input-confirm-password').value;
-  let valid = true;
+    document.getElementById('btn-signup').addEventListener('click', async () => {
+      clearErrs();
+      const loginId = document.getElementById('input-login-id').value.trim();
+      const email = document.getElementById('input-email').value.trim();
+      const password = document.getElementById('input-password').value;
+      const confirm = document.getElementById('input-confirm-password').value;
+      let valid = true;
 
-  if (loginId.length < 6 || loginId.length > 12) { setErr('err-login-id', 'Login ID must be 6–12 characters.'); valid = false; }
-  if (!email.includes('@')) { setErr('err-email', 'Enter a valid email.'); valid = false; }
-  const pwErr = validatePassword(password);
-  if (pwErr) { setErr('err-password', pwErr); valid = false; }
-  if (password !== confirm) { setErr('err-confirm', 'Passwords do not match.'); valid = false; }
-  if (!valid) return;
+      if (loginId.length < 6 || loginId.length > 12) { setErr('err-login-id', 'Login ID must be 6–12 characters.'); valid = false; }
+      if (!email.includes('@')) { setErr('err-email', 'Enter a valid email.'); valid = false; }
+      const pwErr = validatePassword(password);
+      if (pwErr) { setErr('err-password', pwErr); valid = false; }
+      if (password !== confirm) { setErr('err-confirm', 'Passwords do not match.'); valid = false; }
+      if (!valid) return;
 
-  document.getElementById('btn-spinner').style.display = 'inline-block';
-  document.getElementById('btn-text').textContent = 'Creating…';
-  document.getElementById('btn-signup').disabled = true;
+      document.getElementById('btn-spinner').style.display = 'inline-block';
+      document.getElementById('btn-text').textContent = 'Creating…';
+      document.getElementById('btn-signup').disabled = true;
 
-  try {
-    await api.auth.signup({ login_id: loginId, email, password, confirm_password: confirm, role });
-    window.location.href = 'login.html?registered=1';
-  } catch (e) {
-    document.getElementById('global-error').textContent = e.message;
-    document.getElementById('alert-global').classList.remove('d-none');
-    document.getElementById('alert-global').classList.add('d-flex');
-  } finally {
-    document.getElementById('btn-spinner').style.display = 'none';
-    document.getElementById('btn-text').textContent = 'Create Account';
-    document.getElementById('btn-signup').disabled = false;
-  }
-});
-</script>
+      try {
+        await api.auth.signup({ login_id: loginId, email, password, confirm_password: confirm });
+        window.location.href = 'login.html?registered=1';
+      } catch (e) {
+        document.getElementById('global-error').textContent = e.message;
+        document.getElementById('alert-global').classList.remove('d-none');
+        document.getElementById('alert-global').classList.add('d-flex');
+      } finally {
+        document.getElementById('btn-spinner').style.display = 'none';
+        document.getElementById('btn-text').textContent = 'Create Account';
+        document.getElementById('btn-signup').disabled = false;
+      }
+    });
+  </script>
 </body>
+
 </html>

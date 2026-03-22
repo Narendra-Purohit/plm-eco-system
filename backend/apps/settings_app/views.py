@@ -1,10 +1,10 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from apps.users.permissions import IsAdminOnly
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework import status  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
+from apps.users.permissions import IsAdminOnly  # type: ignore
 from .models import ECOStage
-from apps.approvals.models import ApprovalConfig
+from apps.approvals.models import ApprovalConfig  # type: ignore
 from .serializers import ECOStageSerializer, ApprovalConfigSerializer
 
 

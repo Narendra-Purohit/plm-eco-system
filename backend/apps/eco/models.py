@@ -1,8 +1,8 @@
-from django.db import models
-from apps.users.models import CustomUser
-from apps.products.models import Product
-from apps.bom.models import BOM
-from apps.settings_app.models import ECOStage
+from django.db import models  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
+from apps.products.models import Product  # type: ignore
+from apps.bom.models import BOM  # type: ignore
+from apps.settings_app.models import ECOStage  # type: ignore
 
 
 class ECO(models.Model):

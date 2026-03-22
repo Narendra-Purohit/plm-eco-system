@@ -1,11 +1,11 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework import status  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
 from .models import BOM, BOMComponent, BOMOperation
 from .serializers import BOMSerializer, BOMListSerializer
-from apps.users.permissions import IsEngineeringOrAdmin
-from apps.audit.utils import log_event
+from apps.users.permissions import IsEngineeringOrAdmin  # type: ignore
+from apps.audit.utils import log_event  # type: ignore
 
 
 class BOMListCreateView(APIView):

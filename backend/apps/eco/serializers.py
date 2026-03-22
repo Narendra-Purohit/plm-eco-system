@@ -1,8 +1,8 @@
-from rest_framework import serializers
+from rest_framework import serializers  # type: ignore
 from .models import ECO, ECOProposedChange
-from apps.settings_app.models import ECOStage
-from apps.products.serializers import ProductListSerializer
-from apps.bom.serializers import BOMListSerializer
+from apps.settings_app.models import ECOStage  # type: ignore
+from apps.products.serializers import ProductListSerializer  # type: ignore
+from apps.bom.serializers import BOMListSerializer  # type: ignore
 
 
 class ECOProposedChangeSerializer(serializers.ModelSerializer):

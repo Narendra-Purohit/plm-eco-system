@@ -25,11 +25,10 @@
     </button>
     <div class="collapse navbar-collapse" id="topNav">
       <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
-        <span id="role-badge" class="badge bg-info text-dark rounded-pill px-3 py-2 shadow-sm"></span>
+        
+        <span id="role-badge" class="badge bg-info text-dark rounded-pill px-3 py-2 shadow-sm d-none d-lg-inline-block me-2"></span>
         <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style="width:36px;height:36px;" title="Toggle Theme">🌙</button>
-        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="Sign out">
-          👤
-        </button>
+        <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm transition-all" style="width:36px;height:36px;" id="user-icon" title="View Profile" onclick="location.href='profile.html'">👤</button>
       </div>
     </div>
   </div>
@@ -37,7 +36,7 @@
 
 <div class="container-fluid flex-grow-1 d-flex p-0" style="overflow-x: hidden;">
   <!-- Sidebar -->
-  <div class="sidebar border-end p-3 d-none d-lg-block bg-body">
+  <div class="sidebar border-end p-3 d-none d-lg-flex flex-column bg-body">
     <div class="small fw-bold text-uppercase text-muted mb-2 px-3 pt-2">Main Menu</div>
     <div class="nav flex-column nav-pills gap-1">
       <a href="dashboard.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">🏠</span> Dashboard</a>
@@ -49,6 +48,12 @@
     <div class="nav flex-column nav-pills gap-1">
       <a href="reports.html" class="nav-link d-flex align-items-center gap-2"><span class="fs-5">📊</span> Reports</a>
       <a href="settings.html" class="nav-link d-flex align-items-center gap-2" id="settings-link" style="display:none !important;"><span class="fs-5">⚙️</span> Settings</a>
+    </div>
+
+    <div class="mt-auto pt-4">
+      <a href="#" class="nav-link text-danger d-flex align-items-center gap-2" onclick="if(confirm('Sign out?')){sessionStorage.clear();location.href='login.html';}">
+        <span class="fs-5">🚪</span> Sign out
+      </a>
     </div>
   </div>
 
@@ -93,12 +98,19 @@ import { api, getCurrentRole, isLoggedIn } from '../static/js/api.js';
 if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
 const role = getCurrentRole();
+if(document.getElementById('dropdown-user-name')) {
+    let p = {};
+    try { p = (typeof getTokenPayload !== 'undefined') ? getTokenPayload() : JSON.parse(atob(sessionStorage.getItem('access_token').split('.')[1])); } catch(e){}
+    const n = p.name || p.first_name || p.username || sessionStorage.getItem('login_id') || 'User';
+    document.getElementById('dropdown-user-name').textContent = 'User : ' + n;
+    document.getElementById('dropdown-user-role').textContent = 'Role : ' + (role || sessionStorage.getItem('role') || 'Unknown').toUpperCase();
+}
+
+if(document.getElementById('role-badge')) document.getElementById('role-badge').textContent = role?.toUpperCase();
 document.getElementById('role-badge').textContent = role?.toUpperCase();
 if (role === 'admin') document.getElementById('settings-link').style.setProperty('display', 'flex', 'important');
 if (role === 'operations') document.getElementById('btn-new').style.display = 'none';
-document.getElementById('user-icon').addEventListener('click', () => {
-  if(confirm('Sign out?')){localStorage.clear();location.href='login.html'}
-});
+
 
 async function load(search = '') {
   document.getElementById('table-body').innerHTML = '<div class="p-5 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';

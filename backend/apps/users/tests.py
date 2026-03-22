@@ -1,6 +1,6 @@
-from django.test import TestCase
-from rest_framework.test import APIClient
-from apps.users.models import CustomUser
+from django.test import TestCase  # type: ignore
+from rest_framework.test import APIClient  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
 
 
 class RolePermissionTest(TestCase):

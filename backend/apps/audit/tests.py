@@ -1,6 +1,6 @@
-from django.test import TestCase
-from apps.audit.models import AuditLog
-from apps.users.models import CustomUser
+from django.test import TestCase  # type: ignore
+from apps.audit.models import AuditLog  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
 
 
 class AuditLogImmutabilityTest(TestCase):

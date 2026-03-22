@@ -1,8 +1,8 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from apps.users.permissions import IsAdminOnly
-from apps.approvals.models import ApprovalConfig, ApprovalRecord
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
+from apps.users.permissions import IsAdminOnly  # type: ignore
+from apps.approvals.models import ApprovalConfig, ApprovalRecord  # type: ignore
 from .serializers import ApprovalConfigSerializer
 
 

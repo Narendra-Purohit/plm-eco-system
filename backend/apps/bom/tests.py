@@ -1,6 +1,6 @@
-from django.test import TestCase
-from apps.bom.models import BOM
-from apps.products.models import Product
+from django.test import TestCase  # type: ignore
+from apps.bom.models import BOM  # type: ignore
+from apps.products.models import Product  # type: ignore
 
 
 class BOMTest(TestCase):

@@ -1,8 +1,8 @@
-from django.core.exceptions import ValidationError
-from django.test import TestCase
-from rest_framework.test import APIClient
-from apps.users.models import CustomUser
-from apps.products.models import Product
+from django.core.exceptions import ValidationError  # type: ignore
+from django.test import TestCase  # type: ignore
+from rest_framework.test import APIClient  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
+from apps.products.models import Product  # type: ignore
 
 
 class ProductIntegrityTest(TestCase):

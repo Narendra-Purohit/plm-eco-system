@@ -1,18 +1,18 @@
 import copy
-from django.utils import timezone
-from django.db import transaction
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone  # type: ignore
+from django.db import transaction  # type: ignore
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework import status  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
 from .models import ECO, ECOProposedChange
 from .serializers import ECOSerializer, ECODetailSerializer
-from apps.settings_app.models import ECOStage
-from apps.approvals.models import ApprovalConfig, ApprovalRecord
-from apps.users.permissions import IsEngineeringOrAdmin, IsApproverOrAdmin
-from apps.audit.utils import log_event
-from apps.products.models import Product
-from apps.bom.models import BOM, BOMComponent, BOMOperation
+from apps.settings_app.models import ECOStage  # type: ignore
+from apps.approvals.models import ApprovalConfig, ApprovalRecord  # type: ignore
+from apps.users.permissions import IsEngineeringOrAdmin, IsApproverOrAdmin  # type: ignore
+from apps.audit.utils import log_event  # type: ignore
+from apps.products.models import Product  # type: ignore
+from apps.bom.models import BOM, BOMComponent, BOMOperation  # type: ignore
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ def apply_eco(eco, user):
                 new_product.save()
                 
                 # Clone Attachments
-                from apps.products.models import ProductAttachment
+                from apps.products.models import ProductAttachment  # type: ignore
                 for att in old_product.attachments.all():
                     ProductAttachment.objects.create(
                         product=new_product,
@@ -252,10 +252,11 @@ class ECOValidateView(APIView):
         if eco.status != 'active':
             return Response({'error': 'ECO is not active.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Bug 3 Fix: Only the ECO owner or an Admin should be able to manually skip/advance
-        if request.user != eco.user and not request.user.is_staff and request.user.role != 'admin':
+        # Bug 3 Fix: Only Admin or Approvers can manually skip/advance
+        has_bypass = getattr(request.user, 'role', '') in ['admin', 'approver']
+        if not request.user.is_staff and not has_bypass:
             return Response(
-                {'error': 'Only the ECO creator or an Admin can manually validate this stage.'}, 
+                {'error': 'Only an admin or an approver can manually validate/advance this stage.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -296,7 +297,10 @@ class ECOApproveView(APIView):
             return Response({'error': 'ECO is not active.'}, status=status.HTTP_400_BAD_REQUEST)
 
         config = ApprovalConfig.objects.filter(stage=eco.stage, user=request.user).first()
-        if not config:
+        user_role = getattr(request.user, 'role', '')
+        has_bypass = user_role in ['admin', 'approver']
+
+        if not config and not has_bypass:
             return Response(
                 {'error': 'You are not the designated approver for this stage.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -305,9 +309,12 @@ class ECOApproveView(APIView):
         log_event('approval_action', 'eco', eco.id, user=request.user,
                   new_value=f'Approved at {eco.stage.name}')
 
-        # Auto-advance if all required approvals done
+        # Admin and global approver approval forces an immediate auto-advance
         required = ApprovalConfig.objects.filter(stage=eco.stage, category='required')
-        if required.exists():
+        
+        if has_bypass:
+            all_done = True
+        elif required.exists():
             all_done = all(
                 ApprovalRecord.objects.filter(eco=eco, stage=eco.stage, user=c.user).exists()
                 for c in required

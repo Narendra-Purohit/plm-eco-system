@@ -1,6 +1,6 @@
-from django.core.exceptions import ValidationError
-from django.db import models
-from apps.products.models import Product
+from django.core.exceptions import ValidationError  # type: ignore
+from django.db import models  # type: ignore
+from apps.products.models import Product  # type: ignore
 
 
 class BOM(models.Model):

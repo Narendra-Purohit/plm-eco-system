@@ -1,9 +1,9 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager  # type: ignore
+from django.db import models  # type: ignore
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, login_id, email, password=None, role='engineering', **extra_fields):
+    def create_user(self, login_id, email, password=None, role='none', **extra_fields):
         if not login_id:
             raise ValueError('Login ID is required')
         if not email:
@@ -22,6 +22,7 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser):
     ROLE_CHOICES = [
+        ('none', 'No Role'),
         ('engineering', 'Engineering'),
         ('approver', 'Approver'),
         ('operations', 'Operations'),
@@ -30,7 +31,7 @@ class CustomUser(AbstractBaseUser):
 
     login_id   = models.CharField(max_length=20, unique=True)
     email      = models.EmailField(unique=True)
-    role       = models.CharField(max_length=20, choices=ROLE_CHOICES, default='engineering')
+    role       = models.CharField(max_length=20, choices=ROLE_CHOICES, default='none')
     is_active  = models.BooleanField(default=True)
     is_staff   = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

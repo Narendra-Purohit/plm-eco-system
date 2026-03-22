@@ -1,15 +1,15 @@
 import os
-from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
-from rest_framework.permissions import IsAuthenticated
-from django.conf import settings as django_settings
-from django.utils.text import get_valid_filename
+from rest_framework import generics, status  # type: ignore
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework.parsers import MultiPartParser, JSONParser, FormParser  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
+from django.conf import settings as django_settings  # type: ignore
+from django.utils.text import get_valid_filename  # type: ignore
 from .models import Product, ProductAttachment
 from .serializers import ProductSerializer, ProductListSerializer
-from apps.users.permissions import IsEngineeringOrAdmin
-from apps.audit.utils import log_event
+from apps.users.permissions import IsEngineeringOrAdmin  # type: ignore
+from apps.audit.utils import log_event  # type: ignore
 
 
 class ProductListCreateView(APIView):

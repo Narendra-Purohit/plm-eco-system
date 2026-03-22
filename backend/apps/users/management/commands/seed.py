@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand
-from apps.users.models import CustomUser
-from apps.settings_app.models import ECOStage
-from apps.products.models import Product
-from apps.bom.models import BOM, BOMComponent, BOMOperation
+from django.core.management.base import BaseCommand  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
+from apps.settings_app.models import ECOStage  # type: ignore
+from apps.products.models import Product  # type: ignore
+from apps.bom.models import BOM, BOMComponent, BOMOperation  # type: ignore
 
 
 class Command(BaseCommand):

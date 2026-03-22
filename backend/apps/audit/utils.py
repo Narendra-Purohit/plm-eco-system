@@ -1,4 +1,4 @@
-from apps.audit.models import AuditLog
+from apps.audit.models import AuditLog  # type: ignore
 
 
 def log_event(event_type, entity_type, entity_id, user,

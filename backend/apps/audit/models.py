@@ -1,5 +1,5 @@
-from django.db import models
-from apps.users.models import CustomUser
+from django.db import models  # type: ignore
+from apps.users.models import CustomUser  # type: ignore
 
 
 class AuditLog(models.Model):

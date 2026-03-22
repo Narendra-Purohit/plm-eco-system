@@ -1,9 +1,9 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from apps.eco.models import ECO
-from apps.products.models import Product
-from apps.bom.models import BOM
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
+from apps.eco.models import ECO  # type: ignore
+from apps.products.models import Product  # type: ignore
+from apps.bom.models import BOM  # type: ignore
 
 
 class ECOReportView(APIView):

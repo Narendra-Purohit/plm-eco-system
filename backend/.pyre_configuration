@@ -1,0 +1,16 @@
+{
+  "site_package_search_strategy": "all",
+  "python_interpreter": "c:/Users/Hp/Desktop/PLM/plm-eco-system/backend/env/Scripts/python.exe",
+  "source_directories": [
+    {
+      "import_root": "c:/Users/Hp/Desktop/PLM/plm-eco-system/backend"
+    }
+  ],
+  "search_path": [
+    "c:/Users/Hp/Desktop/PLM/plm-eco-system/backend",
+    "c:/Users/Hp/Desktop/PLM/plm-eco-system/backend/env/Lib/site-packages"
+  ],
+  "ignore_all_errors": [
+    "c:/Users/Hp/Desktop/PLM/plm-eco-system/backend"
+  ]
+}
